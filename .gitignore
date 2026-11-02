@@ -1,0 +1,6 @@
+.env
+/vendor/
+/storage/logs/*
+/storage/cache/*
+.phpunit.result.cache
+.idea/
