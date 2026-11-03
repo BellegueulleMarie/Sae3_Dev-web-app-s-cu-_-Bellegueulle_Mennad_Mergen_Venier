@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Http\Router;
+use App\Http\Dispatcher;
 use App\Database\Connection;
-use App\Dao\TagDao;
-use App\Dao\TouiteDao;
-use App\Dao\UtilisateurDao;
-use App\Http\TagController;
-use App\Http\TouiteController;
-use App\Http\UtilisateurController;
-use App\Service\TagService;
-use App\Service\TouiteService;
-use App\Service\UtilisateurService;
-use App\Security\SecurityHeaders;
+use App\Repository\UtilisateurRepository;
+use App\Action\HomeAction;
+use App\Action\UtilisateurCreateAction;
+use App\Action\UtilisateurListAction;
+use App\Action\UtilisateurShowAction;
+use App\Action\UtilisateurUpdateAction;
 use RuntimeException;
 use Throwable;
 
 final class Bootstrap
 {
-    /** @return array{config: array<string, mixed>, router: Router} */
+    /** @return array{config: array<string, mixed>, dispatcher: Dispatcher} */
     public static function create(): array
     {
         $root = dirname(__DIR__);
@@ -30,26 +26,30 @@ final class Bootstrap
         $config = require $root . '/config/app.php';
         self::configureErrors((bool) $config['debug']);
         self::startSession((string) $config['session_name']);
-        SecurityHeaders::send();
-
-        $router = new Router($root . '/templates');
-        $router->get('/', 'home');
-
+        $dispatcher = new Dispatcher($root . '/views');
+        $dispatcher->get('/', [new HomeAction(), 'execute']);
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
-            $users = new UtilisateurController(new UtilisateurService(new UtilisateurDao($database)));
-            $tags = new TagController(new TagService(new TagDao($database)));
-            $touites = new TouiteController(new TouiteService(new TouiteDao($database)));
-
-            $router->get('/api/utilisateurs', [$users, 'index']);
-            $router->post('/api/utilisateurs', [$users, 'store']);
-            $router->get('/api/tags', [$tags, 'index']);
-            $router->post('/api/tags', [$tags, 'store']);
-            $router->get('/api/touites', [$touites, 'index']);
-            $router->post('/api/touites', [$touites, 'store']);
+            $repository = UtilisateurRepository::getInstance($database);
+            $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository), 'execute']);
+            $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs/{id}/modifier', [new UtilisateurUpdateAction($repository), 'execute']);
+        } else {
+            $databaseUnavailable = static function (): void {
+                http_response_code(503);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'error' => 'La connexion à la base de données n’est pas configurée.',
+                ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            };
+            $dispatcher->get('/api/utilisateurs', $databaseUnavailable);
+            $dispatcher->get('/api/utilisateurs/{id}', $databaseUnavailable);
+            $dispatcher->post('/api/utilisateurs', $databaseUnavailable);
+            $dispatcher->post('/api/utilisateurs/{id}/modifier', $databaseUnavailable);
         }
 
-        return ['config' => $config, 'router' => $router];
+        return ['config' => $config, 'dispatcher' => $dispatcher];
     }
 
     private static function loadEnvironment(string $path): void
@@ -98,12 +98,6 @@ final class Bootstrap
         }
 
         session_name($name);
-        session_set_cookie_params([
-            'httponly' => true,
-            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-            'samesite' => 'Lax',
-            'path' => '/',
-        ]);
         session_start();
     }
 }

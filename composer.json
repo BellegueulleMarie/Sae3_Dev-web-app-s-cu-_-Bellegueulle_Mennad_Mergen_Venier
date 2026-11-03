@@ -11,6 +11,6 @@
         }
     },
     "scripts": {
-        "serve": "php -S localhost:8000 -t views"
+        "serve": "php -S localhost:8000 index.php"
     }
 }
