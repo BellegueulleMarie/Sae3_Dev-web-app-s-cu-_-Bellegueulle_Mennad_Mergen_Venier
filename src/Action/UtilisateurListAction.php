@@ -6,18 +6,14 @@ namespace App\Action;
 
 use App\Contracts\ActionInterface;
 use App\Contracts\UtilisateurRepositoryInterface;
-use App\Contracts\ResponseInterface;
 
 final class UtilisateurListAction implements ActionInterface
 {
-    public function __construct(
-        private readonly UtilisateurRepositoryInterface $repository,
-        private readonly ResponseInterface $response
-    ) {
-    }
+    public function __construct(private readonly UtilisateurRepositoryInterface $repository) {}
 
     public function execute(array $parameters = []): void
     {
-        $this->response->send($this->repository->all());
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($this->repository->all());
     }
 }

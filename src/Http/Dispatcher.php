@@ -25,11 +25,6 @@ final class Dispatcher
         $this->add('POST', $path, $handler);
     }
 
-    public function put(string $path, callable $handler): void
-    {
-        $this->add('PUT', $path, $handler);
-    }
-
     public function dispatch(string $method, string $path): void
     {
         $normalizedPath = rtrim($path, '/') ?: '/';

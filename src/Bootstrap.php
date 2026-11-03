@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App;
 
 use App\Http\Dispatcher;
-use App\Http\JsonResponse;
-use App\Http\RequestDataReader;
 use App\Database\Connection;
 use App\Repository\UtilisateurRepository;
 use App\Action\HomeAction;
@@ -32,23 +30,23 @@ final class Bootstrap
         $dispatcher->get('/', [new HomeAction(), 'execute']);
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
-            $request = new RequestDataReader();
-            $response = new JsonResponse();
             $repository = UtilisateurRepository::getInstance($database);
-            $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository, $response), 'execute']);
-            $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository, $response), 'execute']);
-            $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository, $request, $response), 'execute']);
-            $dispatcher->put('/api/utilisateurs/{id}', [new UtilisateurUpdateAction($repository, $request, $response), 'execute']);
+            $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository), 'execute']);
+            $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs/{id}/modifier', [new UtilisateurUpdateAction($repository), 'execute']);
         } else {
             $databaseUnavailable = static function (): void {
-                (new JsonResponse())->send([
+                http_response_code(503);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
                     'error' => 'La connexion à la base de données n’est pas configurée.',
-                ], 503);
+                ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
             };
             $dispatcher->get('/api/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/api/utilisateurs/{id}', $databaseUnavailable);
             $dispatcher->post('/api/utilisateurs', $databaseUnavailable);
-            $dispatcher->put('/api/utilisateurs/{id}', $databaseUnavailable);
+            $dispatcher->post('/api/utilisateurs/{id}/modifier', $databaseUnavailable);
         }
 
         return ['config' => $config, 'dispatcher' => $dispatcher];
@@ -100,12 +98,6 @@ final class Bootstrap
         }
 
         session_name($name);
-        session_set_cookie_params([
-            'httponly' => true,
-            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-            'samesite' => 'Lax',
-            'path' => '/',
-        ]);
         session_start();
     }
 }

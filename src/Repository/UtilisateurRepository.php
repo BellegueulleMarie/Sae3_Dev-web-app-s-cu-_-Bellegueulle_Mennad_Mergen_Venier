@@ -9,7 +9,7 @@ use PDO;
 
 final class UtilisateurRepository implements UtilisateurRepositoryInterface
 {
-    private static ?self $instance = null;
+    private static ?UtilisateurRepository $instance = null;
 
     private function __construct(private readonly PDO $db) {}
 

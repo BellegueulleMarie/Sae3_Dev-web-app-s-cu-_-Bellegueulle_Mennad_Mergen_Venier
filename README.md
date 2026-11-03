@@ -9,7 +9,7 @@ via Composer.
 - `App\Contracts` : interfaces ;
 - `App\Repository` : Repository Singleton et requetes PDO preparees ;
 - `App\Database` : connexion a Oracle ;
-- `App\Http` : Dispatcher, lecture des requetes et reponses JSON ;
+- `App\Http` : Dispatcher ;
 - `views/` : vues PHP.
 
 ## Demarrage
@@ -27,6 +27,6 @@ Les routes utilisateur sont :
 - `GET /api/utilisateurs`
 - `GET /api/utilisateurs/{id}`
 - `POST /api/utilisateurs`
-- `PUT /api/utilisateurs/{id}`
+- `POST /api/utilisateurs/{id}/modifier`
 
 La gestion d'authentification n'est pas incluse.
