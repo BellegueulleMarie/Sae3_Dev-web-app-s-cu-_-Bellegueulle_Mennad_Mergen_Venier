@@ -29,6 +29,20 @@ composer serve
 
 Le site est ensuite disponible sur `http://localhost:8000`.
 
+## Base de donnees
+
+Le schema Oracle est disponible dans `database/schema.sql`. Il cree les tables
+des utilisateurs, touites, images, tags et leurs associations.
+
+La couche d'acces aux donnees est organisee en DAO (`src/Dao`), services
+(`src/Service`) et contrôleurs HTTP (`src/Http`). Les endpoints JSON suivants
+sont disponibles lorsque `DB_DSN`, `DB_USERNAME` et `DB_PASSWORD` sont
+configures dans `.env` :
+
+- `GET|POST /api/utilisateurs`
+- `GET|POST /api/tags`
+- `GET|POST /api/touites`
+
 ## Regles de securite integrees
 
 - point d'entree unique et aucun code applicatif dans `public/`;

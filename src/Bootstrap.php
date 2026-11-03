@@ -5,6 +5,16 @@ declare(strict_types=1);
 namespace App;
 
 use App\Http\Router;
+use App\Database\Connection;
+use App\Dao\TagDao;
+use App\Dao\TouiteDao;
+use App\Dao\UtilisateurDao;
+use App\Http\TagController;
+use App\Http\TouiteController;
+use App\Http\UtilisateurController;
+use App\Service\TagService;
+use App\Service\TouiteService;
+use App\Service\UtilisateurService;
 use App\Security\SecurityHeaders;
 use RuntimeException;
 use Throwable;
@@ -24,6 +34,20 @@ final class Bootstrap
 
         $router = new Router($root . '/templates');
         $router->get('/', 'home');
+
+        if ((string) ($config['database']['dsn'] ?? '') !== '') {
+            $database = Connection::create($config['database']);
+            $users = new UtilisateurController(new UtilisateurService(new UtilisateurDao($database)));
+            $tags = new TagController(new TagService(new TagDao($database)));
+            $touites = new TouiteController(new TouiteService(new TouiteDao($database)));
+
+            $router->get('/api/utilisateurs', [$users, 'index']);
+            $router->post('/api/utilisateurs', [$users, 'store']);
+            $router->get('/api/tags', [$tags, 'index']);
+            $router->post('/api/tags', [$tags, 'store']);
+            $router->get('/api/touites', [$touites, 'index']);
+            $router->post('/api/touites', [$touites, 'store']);
+        }
 
         return ['config' => $config, 'router' => $router];
     }
