@@ -8,7 +8,7 @@ use RuntimeException;
 
 final class Router
 {
-    /** @var array<string, callable(): void> */
+    /** @var array<string, callable(array<string, string>): void> */
     private array $routes = [];
 
     public function __construct(private readonly string $templatePath)
@@ -25,6 +25,11 @@ final class Router
         $this->add('POST', $path, $handler);
     }
 
+    public function put(string $path, callable $handler): void
+    {
+        $this->add('PUT', $path, $handler);
+    }
+
     private function add(string $method, string $path, callable|string $handler): void
     {
         $this->routes[$method . ' ' . $path] = is_string($handler)
@@ -37,14 +42,33 @@ final class Router
     public function dispatch(string $method, string $path): void
     {
         $normalizedPath = rtrim($path, '/') ?: '/';
-        $handler = $this->routes[$method . ' ' . $normalizedPath] ?? null;
-        if ($handler === null) {
+        $route = $this->match($method, $normalizedPath);
+        if ($route === null) {
             http_response_code(404);
             echo '<h1>Page introuvable</h1>';
             return;
         }
 
-        $handler();
+        [$handler, $parameters] = $route;
+        $handler(...array_values($parameters));
+    }
+
+    /** @return array{callable, array<string, string>}|null */
+    private function match(string $method, string $path): ?array
+    {
+        foreach ($this->routes as $route => $handler) {
+            [$routeMethod, $routePath] = explode(' ', $route, 2);
+            $pattern = preg_replace(
+                '/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/',
+                '(?P<$1>[^/]+)',
+                $routePath
+            );
+            if ($routeMethod === $method && $pattern !== null &&
+                preg_match('#^' . $pattern . '/?$#', $path, $matches) === 1) {
+                return [$handler, array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY)];
+            }
+        }
+        return null;
     }
 
     private function render(string $template): void

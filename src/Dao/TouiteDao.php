@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Dao;
 
+use App\Contracts\TouiteDaoInterface;
 use PDO;
 
-final class TouiteDao
+final class TouiteDao implements TouiteDaoInterface
 {
     public function __construct(private readonly PDO $db) {}
 

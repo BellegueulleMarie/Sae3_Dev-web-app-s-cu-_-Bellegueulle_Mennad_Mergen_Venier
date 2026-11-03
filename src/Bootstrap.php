@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App;
 
 use App\Http\Router;
+use App\Http\JsonResponse;
+use App\Http\RequestDataReader;
 use App\Database\Connection;
 use App\Dao\TagDao;
 use App\Dao\TouiteDao;
@@ -37,12 +39,15 @@ final class Bootstrap
 
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
-            $users = new UtilisateurController(new UtilisateurService(new UtilisateurDao($database)));
-            $tags = new TagController(new TagService(new TagDao($database)));
-            $touites = new TouiteController(new TouiteService(new TouiteDao($database)));
+            $request = new RequestDataReader();
+            $response = new JsonResponse();
+            $users = new UtilisateurController(new UtilisateurService(new UtilisateurDao($database)), $request, $response);
+            $tags = new TagController(new TagService(new TagDao($database)), $request, $response);
+            $touites = new TouiteController(new TouiteService(new TouiteDao($database)), $request, $response);
 
             $router->get('/api/utilisateurs', [$users, 'index']);
             $router->post('/api/utilisateurs', [$users, 'store']);
+            $router->put('/api/utilisateurs/{id}', [$users, 'update']);
             $router->get('/api/tags', [$tags, 'index']);
             $router->post('/api/tags', [$tags, 'store']);
             $router->get('/api/touites', [$touites, 'index']);

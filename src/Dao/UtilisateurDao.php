@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Dao;
 
+use App\Contracts\UtilisateurDaoInterface;
 use PDO;
 
-final class UtilisateurDao
+final class UtilisateurDao implements UtilisateurDaoInterface
 {
+
     public function __construct(private readonly PDO $db) {}
 
     /** @return list<array<string, mixed>> */
@@ -35,5 +37,21 @@ final class UtilisateurDao
             'INSERT INTO UTILISATEUR (id_util, nom, prenom, email) VALUES (:id, :nom, :prenom, :email)'
         );
         $statement->execute(compact('id', 'nom', 'prenom', 'email'));
+    }
+
+    public function update(int $id, string $nom, string $prenom, string $email): void
+    {
+        $statement = $this->db->prepare(
+            'UPDATE UTILISATEUR
+             SET nom = :nom, prenom = :prenom, email = :email
+             WHERE id_util = :id'
+        );
+        $statement->execute(compact('id', 'nom', 'prenom', 'email'));
+    }
+    public function delete(int $id): void {
+        $statement = $this->db->prepare(
+            'DELETE FROM UTILISATEUR WHERE id_util = :id'
+        );
+        $statement->execute(['id' => $id]);
     }
 }

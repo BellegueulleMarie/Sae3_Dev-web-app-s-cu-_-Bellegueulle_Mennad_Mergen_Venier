@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Dao;
 
+use App\Contracts\TagDaoInterface;
 use PDO;
 
-final class TagDao
+final class TagDao implements TagDaoInterface
 {
     public function __construct(private readonly PDO $db) {}
 

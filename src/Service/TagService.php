@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Dao\TagDao;
+use App\Contracts\TagDaoInterface;
+use App\Contracts\TagServiceInterface;
 use InvalidArgumentException;
 
-final class TagService
+final class TagService implements TagServiceInterface
 {
-    public function __construct(private readonly TagDao $dao) {}
+    public function __construct(private readonly TagDaoInterface $dao) {}
 
     /** @return list<array<string, mixed>> */
     public function list(): array { return $this->dao->all(); }

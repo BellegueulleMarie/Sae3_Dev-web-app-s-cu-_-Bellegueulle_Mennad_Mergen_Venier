@@ -34,12 +34,21 @@ Le site est ensuite disponible sur `http://localhost:8000`.
 Le schema Oracle est disponible dans `database/schema.sql`. Il cree les tables
 des utilisateurs, touites, images, tags et leurs associations.
 
-La couche d'acces aux donnees est organisee en DAO (`src/Dao`), services
-(`src/Service`) et contrôleurs HTTP (`src/Http`). Les endpoints JSON suivants
+Le code est sépare en packages PHP correspondant aux namespaces `App\` :
+
+- `App\Contracts` : interfaces des dependances ;
+- `App\Dao` : acces aux tables Oracle ;
+- `App\Service` : validation et regles applicatives ;
+- `App\Http` : contrôleurs, routeur et réponses HTTP ;
+- `App\Database` : connexion PDO ;
+- `App\Security` : protections de session et de requêtes.
+
+Les endpoints JSON suivants
 sont disponibles lorsque `DB_DSN`, `DB_USERNAME` et `DB_PASSWORD` sont
 configures dans `.env` :
 
 - `GET|POST /api/utilisateurs`
+- `PUT /api/utilisateurs/{id}`
 - `GET|POST /api/tags`
 - `GET|POST /api/touites`
 

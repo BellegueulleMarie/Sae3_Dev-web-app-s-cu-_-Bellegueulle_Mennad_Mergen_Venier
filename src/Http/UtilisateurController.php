@@ -4,29 +4,37 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-use App\Service\UtilisateurService;
+use App\Contracts\RequestDataReaderInterface;
+use App\Contracts\ResponseInterface;
+use App\Contracts\UtilisateurServiceInterface;
 use Throwable;
 
 final class UtilisateurController
 {
-    public function __construct(private readonly UtilisateurService $service) {}
+    public function __construct(
+        private readonly UtilisateurServiceInterface $service,
+        private readonly RequestDataReaderInterface $request,
+        private readonly ResponseInterface $response
+    ) {}
 
-    public function index(): void { JsonResponse::send($this->service->list()); }
+    public function index(): void { $this->response->send($this->service->list()); }
 
     public function store(): void
     {
         try {
-            $this->service->create($this->input());
-            JsonResponse::send(['message' => 'Utilisateur cree.'], 201);
+            $this->service->create($this->request->read());
+            $this->response->send(['message' => 'Utilisateur cree.'], 201);
         } catch (Throwable $exception) {
-            JsonResponse::send(['error' => $exception->getMessage()], 400);
+            $this->response->send(['error' => $exception->getMessage()], 400);
         }
     }
-
-    /** @return array<string, mixed> */
-    private function input(): array
+    public function update(string $id): void
     {
-        $input = json_decode(file_get_contents('php://input') ?: '', true);
-        return is_array($input) ? $input : $_POST;
+        try {
+            $this->service->update((int) $id, $this->request->read());
+            $this->response->send(['message' => 'Utilisateur modifie.']);
+        } catch (Throwable $exception) {
+            $this->response->send(['error' => $exception->getMessage()], 400);
+        }
     }
 }

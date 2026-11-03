@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-final class JsonResponse
+use App\Contracts\ResponseInterface;
+
+final class JsonResponse implements ResponseInterface
 {
-    public static function send(mixed $data, int $status = 200): void
+    public function send(mixed $data, int $status = 200): void
     {
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');

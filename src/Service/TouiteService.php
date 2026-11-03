@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Dao\TouiteDao;
+use App\Contracts\TouiteDaoInterface;
+use App\Contracts\TouiteServiceInterface;
 use InvalidArgumentException;
 
-final class TouiteService
+final class TouiteService implements TouiteServiceInterface
 {
-    public function __construct(private readonly TouiteDao $dao) {}
+    public function __construct(private readonly TouiteDaoInterface $dao) {}
 
     /** @return list<array<string, mixed>> */
     public function latest(): array { return $this->dao->latest(); }
