@@ -1,0 +1,67 @@
+-- Schema Oracle de l'application
+
+DROP TABLE CONTENIR_TAG CASCADE CONSTRAINTS;
+DROP TABLE ABONNER_TAG CASCADE CONSTRAINTS;
+DROP TABLE SUIVRE CASCADE CONSTRAINTS;
+DROP TABLE TOUITE CASCADE CONSTRAINTS;
+DROP TABLE IMAGE CASCADE CONSTRAINTS;
+DROP TABLE TAG CASCADE CONSTRAINTS;
+DROP TABLE UTILISATEUR CASCADE CONSTRAINTS;
+
+-- Tables principales
+
+CREATE TABLE UTILISATEUR (
+    id_util     NUMBER PRIMARY KEY,
+    nom         VARCHAR2(50) NOT NULL,
+    prenom      VARCHAR2(50) NOT NULL,
+    email       VARCHAR2(100) NOT NULL UNIQUE,
+    nb_touites  NUMBER DEFAULT 0
+);
+
+CREATE TABLE TAG (
+    id_tag      NUMBER PRIMARY KEY,
+    libelle     VARCHAR2(50) NOT NULL UNIQUE,
+    description VARCHAR2(255)
+);
+
+CREATE TABLE IMAGE (
+    id_img          NUMBER PRIMARY KEY,
+    chemin_fichier  VARCHAR2(255) NOT NULL,
+    description_img VARCHAR2(255)
+);
+
+CREATE TABLE TOUITE (
+    id_touite   NUMBER PRIMARY KEY,
+    texte       VARCHAR2(235) NOT NULL,
+    date_touite DATE DEFAULT SYSDATE,
+    id_auteur   NUMBER NOT NULL,
+    id_img      NUMBER,
+    FOREIGN KEY (id_auteur) REFERENCES UTILISATEUR(id_util),
+    FOREIGN KEY (id_img) REFERENCES IMAGE(id_img)
+);
+
+-- Tables d'associations
+
+CREATE TABLE SUIVRE (
+    id_suiveur  NUMBER NOT NULL,
+    id_suivi    NUMBER NOT NULL,
+    PRIMARY KEY (id_suiveur, id_suivi),
+    FOREIGN KEY (id_suiveur) REFERENCES UTILISATEUR(id_util),
+    FOREIGN KEY (id_suivi) REFERENCES UTILISATEUR(id_util)
+);
+
+CREATE TABLE ABONNER_TAG (
+    id_util     NUMBER NOT NULL,
+    id_tag      NUMBER NOT NULL,
+    PRIMARY KEY (id_util, id_tag),
+    FOREIGN KEY (id_util) REFERENCES UTILISATEUR(id_util),
+    FOREIGN KEY (id_tag) REFERENCES TAG(id_tag)
+);
+
+CREATE TABLE CONTENIR_TAG (
+    id_touite   NUMBER NOT NULL,
+    id_tag      NUMBER NOT NULL,
+    PRIMARY KEY (id_touite, id_tag),
+    FOREIGN KEY (id_touite) REFERENCES TOUITE(id_touite),
+    FOREIGN KEY (id_tag) REFERENCES TAG(id_tag)
+);
