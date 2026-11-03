@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Contracts;
 
-interface UtilisateurDaoInterface
+interface UtilisateurRepositoryInterface
 {
+    public static function getInstance(\PDO $db): static;
+
     /** @return list<array<string, mixed>> */
     public function all(): array;
 

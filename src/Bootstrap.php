@@ -4,26 +4,22 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Http\Router;
+use App\Http\Dispatcher;
 use App\Http\JsonResponse;
 use App\Http\RequestDataReader;
 use App\Database\Connection;
-use App\Dao\TagDao;
-use App\Dao\TouiteDao;
-use App\Dao\UtilisateurDao;
-use App\Http\TagController;
-use App\Http\TouiteController;
-use App\Http\UtilisateurController;
-use App\Service\TagService;
-use App\Service\TouiteService;
-use App\Service\UtilisateurService;
-use App\Security\SecurityHeaders;
+use App\Repository\UtilisateurRepository;
+use App\Action\HomeAction;
+use App\Action\UtilisateurCreateAction;
+use App\Action\UtilisateurListAction;
+use App\Action\UtilisateurShowAction;
+use App\Action\UtilisateurUpdateAction;
 use RuntimeException;
 use Throwable;
 
 final class Bootstrap
 {
-    /** @return array{config: array<string, mixed>, router: Router} */
+    /** @return array{config: array<string, mixed>, dispatcher: Dispatcher} */
     public static function create(): array
     {
         $root = dirname(__DIR__);
@@ -32,29 +28,30 @@ final class Bootstrap
         $config = require $root . '/config/app.php';
         self::configureErrors((bool) $config['debug']);
         self::startSession((string) $config['session_name']);
-        SecurityHeaders::send();
-
-        $router = new Router($root . '/templates');
-        $router->get('/', 'home');
-
+        $dispatcher = new Dispatcher($root . '/views');
+        $dispatcher->get('/', [new HomeAction(), 'execute']);
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
             $request = new RequestDataReader();
             $response = new JsonResponse();
-            $users = new UtilisateurController(new UtilisateurService(new UtilisateurDao($database)), $request, $response);
-            $tags = new TagController(new TagService(new TagDao($database)), $request, $response);
-            $touites = new TouiteController(new TouiteService(new TouiteDao($database)), $request, $response);
-
-            $router->get('/api/utilisateurs', [$users, 'index']);
-            $router->post('/api/utilisateurs', [$users, 'store']);
-            $router->put('/api/utilisateurs/{id}', [$users, 'update']);
-            $router->get('/api/tags', [$tags, 'index']);
-            $router->post('/api/tags', [$tags, 'store']);
-            $router->get('/api/touites', [$touites, 'index']);
-            $router->post('/api/touites', [$touites, 'store']);
+            $repository = UtilisateurRepository::getInstance($database);
+            $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository, $response), 'execute']);
+            $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository, $response), 'execute']);
+            $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository, $request, $response), 'execute']);
+            $dispatcher->put('/api/utilisateurs/{id}', [new UtilisateurUpdateAction($repository, $request, $response), 'execute']);
+        } else {
+            $databaseUnavailable = static function (): void {
+                (new JsonResponse())->send([
+                    'error' => 'La connexion à la base de données n’est pas configurée.',
+                ], 503);
+            };
+            $dispatcher->get('/api/utilisateurs', $databaseUnavailable);
+            $dispatcher->get('/api/utilisateurs/{id}', $databaseUnavailable);
+            $dispatcher->post('/api/utilisateurs', $databaseUnavailable);
+            $dispatcher->put('/api/utilisateurs/{id}', $databaseUnavailable);
         }
 
-        return ['config' => $config, 'router' => $router];
+        return ['config' => $config, 'dispatcher' => $dispatcher];
     }
 
     private static function loadEnvironment(string $path): void

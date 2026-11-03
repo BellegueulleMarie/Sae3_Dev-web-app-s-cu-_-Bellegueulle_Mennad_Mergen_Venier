@@ -2,15 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Dao;
+namespace App\Repository;
 
-use App\Contracts\UtilisateurDaoInterface;
+use App\Contracts\UtilisateurRepositoryInterface;
 use PDO;
 
-final class UtilisateurDao implements UtilisateurDaoInterface
+final class UtilisateurRepository implements UtilisateurRepositoryInterface
 {
+    private static ?self $instance = null;
 
-    public function __construct(private readonly PDO $db) {}
+    private function __construct(private readonly PDO $db) {}
+
+    public static function getInstance(PDO $db): static
+    {
+        return self::$instance ??= new self($db);
+    }
 
     /** @return list<array<string, mixed>> */
     public function all(): array
@@ -34,7 +40,8 @@ final class UtilisateurDao implements UtilisateurDaoInterface
     public function create(int $id, string $nom, string $prenom, string $email): void
     {
         $statement = $this->db->prepare(
-            'INSERT INTO UTILISATEUR (id_util, nom, prenom, email) VALUES (:id, :nom, :prenom, :email)'
+            'INSERT INTO UTILISATEUR (id_util, nom, prenom, email)
+             VALUES (:id, :nom, :prenom, :email)'
         );
         $statement->execute(compact('id', 'nom', 'prenom', 'email'));
     }
