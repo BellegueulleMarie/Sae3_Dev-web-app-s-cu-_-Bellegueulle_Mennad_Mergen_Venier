@@ -37,13 +37,13 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         return $user === false ? null : $user;
     }
 
-    public function create(int $id, string $nom, string $prenom, string $email): void
+    public function create(string $nom, string $prenom, string $email): void
     {
         $statement = $this->db->prepare(
-            'INSERT INTO UTILISATEUR (id_util, nom, prenom, email)
-             VALUES (:id, :nom, :prenom, :email)'
+            'INSERT INTO UTILISATEUR (nom, prenom, email)
+             VALUES (:nom, :prenom, :email)'
         );
-        $statement->execute(compact('id', 'nom', 'prenom', 'email'));
+        $statement->execute(compact('nom', 'prenom', 'email'));
     }
 
     public function update(int $id, string $nom, string $prenom, string $email): void

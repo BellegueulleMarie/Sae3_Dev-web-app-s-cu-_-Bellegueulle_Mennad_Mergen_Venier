@@ -7,8 +7,8 @@ namespace App;
 use App\Http\Dispatcher;
 use App\Database\Connection;
 use App\Repository\UtilisateurRepository;
-use App\Action\HomeAction;
 use App\Action\UtilisateurCreateAction;
+use App\Action\HomeAction;
 use App\Action\UtilisateurListAction;
 use App\Action\UtilisateurShowAction;
 use App\Action\UtilisateurUpdateAction;
@@ -35,13 +35,11 @@ final class Bootstrap
             $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs/{id}/modifier', [new UtilisateurUpdateAction($repository), 'execute']);
+            $dispatcher->get('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
+            $dispatcher->post('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
         } else {
             $databaseUnavailable = static function (): void {
-                http_response_code(503);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode([
-                    'error' => 'La connexion à la base de données n’est pas configurée.',
-                ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+                echo '<h1>Base de données non configurée.</h1>';
             };
             $dispatcher->get('/api/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/api/utilisateurs/{id}', $databaseUnavailable);

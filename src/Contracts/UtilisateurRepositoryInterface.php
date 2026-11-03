@@ -14,7 +14,7 @@ interface UtilisateurRepositoryInterface
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array;
 
-    public function create(int $id, string $nom, string $prenom, string $email): void;
+    public function create(string $nom, string $prenom, string $email): void;
 
     public function update(int $id, string $nom, string $prenom, string $email): void;
 }

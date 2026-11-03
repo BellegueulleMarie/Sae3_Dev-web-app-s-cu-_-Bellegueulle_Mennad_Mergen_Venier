@@ -1,16 +1,15 @@
 # Application Touiteur
 
-Application PHP 8.1+ sans framework, organisee avec namespaces et autoload PSR-4
-via Composer.
+Application PHP simple avec Composer et autoload PSR-4.
 
 ## Architecture
 
-- `App\Action` : une classe par cas d'utilisation, avec `execute()` ;
+- `App\Action` : action de création d'un utilisateur ;
 - `App\Contracts` : interfaces ;
-- `App\Repository` : Repository Singleton et requetes PDO preparees ;
-- `App\Database` : connexion a Oracle ;
+- `App\Repository` : repository utilisateur avec PDO ;
+- `App\Database` : connexion Oracle ;
 - `App\Http` : Dispatcher ;
-- `views/` : vues PHP.
+- `views/` : page PHP.
 
 ## Demarrage
 
@@ -20,13 +19,4 @@ composer install
 composer serve
 ```
 
-La page est disponible sur `http://localhost:8000`.
-
-Les routes utilisateur sont :
-
-- `GET /api/utilisateurs`
-- `GET /api/utilisateurs/{id}`
-- `POST /api/utilisateurs`
-- `POST /api/utilisateurs/{id}/modifier`
-
-La gestion d'authentification n'est pas incluse.
+La page de création est disponible sur `http://localhost:8000`.
