@@ -13,6 +13,7 @@ use App\Action\HomeAction;
 use App\Action\UtilisateurListAction;
 use App\Action\UtilisateurShowAction;
 use App\Action\UtilisateurUpdateAction;
+use App\Action\UtilisateurFollowAction;
 use RuntimeException;
 use Throwable;
 
@@ -37,6 +38,7 @@ final class Application
             $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs/{id}/modifier', [new UtilisateurUpdateAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs/{id}/suivre', [new UtilisateurFollowAction($repository), 'execute']);
             $dispatcher->get('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
         } else {
@@ -48,6 +50,8 @@ final class Application
             $dispatcher->get('/api/utilisateurs/{id}', $databaseUnavailable);
             $dispatcher->post('/api/utilisateurs', $databaseUnavailable);
             $dispatcher->post('/api/utilisateurs/{id}/modifier', $databaseUnavailable);
+            $dispatcher->get('/utilisateurs/creation', $databaseUnavailable);
+            $dispatcher->post('/utilisateurs/creation', $databaseUnavailable);
         }
 
         return ['config' => $config, 'dispatcher' => $dispatcher];

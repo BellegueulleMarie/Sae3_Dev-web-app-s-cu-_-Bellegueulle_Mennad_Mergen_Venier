@@ -41,3 +41,16 @@ button {
 button:hover {
     background: #185a9d;
 }
+
+.button {
+    display: inline-block;
+    padding: 9px 18px;
+    color: white;
+    background: #2878c8;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.button:hover {
+    background: #185a9d;
+}

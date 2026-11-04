@@ -16,6 +16,9 @@ function pageAccueil(string $message, array $touites): void
         <body>
             <main>
                 <h1>Touiteur.app</h1>
+                <nav aria-label="Navigation principale">
+                    <a class="button" href="index.php?route=utilisateurs/creation">Accéder aux utilisateurs</a>
+                </nav>
                 <h2>Mon mur</h2>
 HTML;
 

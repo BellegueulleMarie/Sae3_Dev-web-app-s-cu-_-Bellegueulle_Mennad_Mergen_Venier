@@ -29,6 +29,14 @@ final class UtilisateurShowAction implements ActionInterface
             return;
         }
 
+        $currentUserId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
+        $isAuthenticated = $currentUserId !== false && $currentUserId !== null && $currentUserId > 0;
+        $user['followers_count'] = $this->repository->followerCount($id);
+        $user['is_following'] = $isAuthenticated
+            ? $this->repository->isFollowing((int) $currentUserId, $id)
+            : false;
+        $user['can_follow'] = $isAuthenticated && (int) $currentUserId !== $id;
+
         echo json_encode($user);
     }
 }

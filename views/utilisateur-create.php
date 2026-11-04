@@ -24,6 +24,7 @@ HTML;
     afficherMessage($error, 'Erreur');
     afficherMessage($success, 'Succès');
     afficherFormulaire($nom, $prenom, $email);
+    echo '<p><a class="button" href="index.php">Retour à l’accueil</a></p>';
     echo '</body></html>';
 }
 
@@ -40,7 +41,7 @@ HTML;
 function afficherFormulaire(string $nom, string $prenom, string $email): void
 {
     echo <<<HTML
-    <form method="post" action="/utilisateurs/creation">
+    <form method="post" action="index.php?route=utilisateurs/creation">
         <p><label for="nom">Nom</label>
             <input id="nom" name="nom" maxlength="50" value="$nom" required></p>
         <p><label for="prenom">Prénom</label>
