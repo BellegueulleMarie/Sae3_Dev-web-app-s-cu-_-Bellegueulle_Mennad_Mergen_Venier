@@ -14,7 +14,7 @@ final class Connection
     {
         $dsn = (string) ($config['dsn'] ?? '');
         if ($dsn === '') {
-            throw new RuntimeException('La connexion Oracle n’est pas configuree.');
+            throw new RuntimeException('La connexion MySQL n’est pas configuree.');
         }
 
         return new PDO($dsn, (string) ($config['username'] ?? ''), (string) ($config['password'] ?? ''), [
