@@ -6,6 +6,7 @@ namespace App;
 
 use App\Http\Dispatcher;
 use App\Database\Connection;
+use App\Repository\TouiteRepository;
 use App\Repository\UtilisateurRepository;
 use App\Action\UtilisateurCreateAction;
 use App\Action\HomeAction;
@@ -15,7 +16,7 @@ use App\Action\UtilisateurUpdateAction;
 use RuntimeException;
 use Throwable;
 
-final class Bootstrap
+final class Application
 {
     /** @return array{config: array<string, mixed>, dispatcher: Dispatcher} */
     public static function create(): array
@@ -27,10 +28,11 @@ final class Bootstrap
         self::configureErrors((bool) $config['debug']);
         self::startSession((string) $config['session_name']);
         $dispatcher = new Dispatcher($root . '/views');
-        $dispatcher->get('/', [new HomeAction(), 'execute']);
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
             $repository = UtilisateurRepository::getInstance($database);
+            $touiteRepository = TouiteRepository::getInstance($database);
+            $dispatcher->get('/', [new HomeAction($touiteRepository), 'execute']);
             $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository), 'execute']);
             $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
@@ -38,6 +40,7 @@ final class Bootstrap
             $dispatcher->get('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
         } else {
+            $dispatcher->get('/', [new HomeAction(), 'execute']);
             $databaseUnavailable = static function (): void {
                 echo '<h1>Base de données non configurée.</h1>';
             };

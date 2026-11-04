@@ -42,6 +42,35 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $touite === false ? null : $touite;
     }
 
+    /** @return list<array<string, mixed>> */
+    public function wall(int $userId): array
+    {
+        $request = $this->db->prepare(
+            'SELECT DISTINCT t.id_touite, t.texte, t.date_touite, t.id_auteur, t.id_img
+             FROM TOUITE t
+             WHERE EXISTS (
+                 SELECT 1
+                 FROM SUIVRE s
+                 WHERE s.id_suiveur = :followed_by
+                   AND s.id_suivi = t.id_auteur
+             )
+             OR EXISTS (
+                 SELECT 1
+                 FROM CONTENIR_TAG ct
+                 JOIN ABONNER_TAG at ON at.id_tag = ct.id_tag
+                 WHERE at.id_util = :subscribed_by
+                   AND ct.id_touite = t.id_touite
+             )
+             ORDER BY t.date_touite DESC, t.id_touite DESC'
+        );
+        $request->execute([
+            'followed_by' => $userId,
+            'subscribed_by' => $userId,
+        ]);
+
+        return $request->fetchAll();
+    }
+
     public function create(int $id, string $texte, int $auteur): void
     {
         $request = $this->db->prepare(

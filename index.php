@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Bootstrap;
+use App\Application;
 
 require __DIR__ . '/vendor/autoload.php';
 
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$application = Bootstrap::create();
+$application = Application::create();
 $application['dispatcher']->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $requestPath);

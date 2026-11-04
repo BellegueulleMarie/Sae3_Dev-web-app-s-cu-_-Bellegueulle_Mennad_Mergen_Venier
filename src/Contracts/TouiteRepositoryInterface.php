@@ -14,5 +14,8 @@ interface TouiteRepositoryInterface
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array;
 
+    /** @return list<array<string, mixed>> */
+    public function wall(int $userId): array;
+
     public function create(int $id, string $texte, int $auteur): void;
 }
