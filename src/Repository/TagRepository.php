@@ -21,14 +21,14 @@ final class TagRepository implements TagRepositoryInterface
     public function all(): array
     {
         return $this->db->query(
-            'SELECT id_tag, libelle, description FROM TAG ORDER BY libelle'
+            'SELECT id, nom FROM tags ORDER BY nom'
         )->fetchAll();
     }
 
     public function find(int $id): ?array
     {
         $request = $this->db->prepare(
-            'SELECT id_tag, libelle, description FROM TAG WHERE id_tag = :id'
+            'SELECT id, nom FROM tags WHERE id = :id'
         );
         $request->execute(['id' => $id]);
         $tag = $request->fetch();
@@ -39,8 +39,8 @@ final class TagRepository implements TagRepositoryInterface
     public function create(int $id, string $libelle, string $description): void
     {
         $request = $this->db->prepare(
-            'INSERT INTO TAG (id_tag, libelle, description)
-             VALUES (:id, :libelle, :description)'
+            'INSERT INTO tags (id, nom)
+             VALUES (:id, :libelle)'
         );
         $request->execute([
             'id' => $id,

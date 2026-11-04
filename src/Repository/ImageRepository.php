@@ -21,16 +21,16 @@ final class ImageRepository implements ImageRepositoryInterface
     public function all(): array
     {
         return $this->db->query(
-            'SELECT id_img, chemin_fichier, description_img FROM IMAGE ORDER BY id_img'
+            'SELECT id, image AS chemin_fichier FROM touites ORDER BY id'
         )->fetchAll();
     }
 
     public function find(int $id): ?array
     {
         $request = $this->db->prepare(
-            'SELECT id_img, chemin_fichier, description_img
-             FROM IMAGE
-             WHERE id_img = :id'
+            'SELECT id, image AS chemin_fichier
+             FROM touites
+             WHERE id = :id'
         );
         $request->execute(['id' => $id]);
         $image = $request->fetch();
@@ -41,8 +41,7 @@ final class ImageRepository implements ImageRepositoryInterface
     public function create(int $id, string $chemin, string $description): void
     {
         $request = $this->db->prepare(
-            'INSERT INTO IMAGE (id_img, chemin_fichier, description_img)
-             VALUES (:id, :chemin, :description)'
+            'UPDATE touites SET image = :chemin WHERE id = :id'
         );
         $request->execute([
             'id' => $id,

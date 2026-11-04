@@ -54,7 +54,7 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         }
 
         $statement = $this->db->prepare(
-            'INSERT INTO SUIVRE (id_suiveur, id_suivi)
+            'INSERT INTO suivis (suiveur_id, suivi_id)
              VALUES (:follower, :followed)'
         );
         $statement->execute([
@@ -66,8 +66,8 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     public function isFollowing(int $followerId, int $followedId): bool
     {
         $statement = $this->db->prepare(
-            'SELECT 1 FROM SUIVRE
-             WHERE id_suiveur = :follower AND id_suivi = :followed'
+            'SELECT 1 FROM suivis
+             WHERE suiveur_id = :follower AND suivi_id = :followed'
         );
         $statement->execute([
             'follower' => $followerId,
@@ -80,7 +80,7 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     public function followerCount(int $userId): int
     {
         $statement = $this->db->prepare(
-            'SELECT COUNT(*) FROM SUIVRE WHERE id_suivi = :user_id'
+            'SELECT COUNT(*) FROM suivis WHERE suivi_id = :user_id'
         );
         $statement->execute(['user_id' => $userId]);
 
