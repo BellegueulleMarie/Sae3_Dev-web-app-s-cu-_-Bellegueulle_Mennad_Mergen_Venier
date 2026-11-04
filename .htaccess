@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Laisser Apache servir directement les fichiers statiques.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Transmettre les routes de l'application au front controller.
+RewriteRule ^ index.php [QSA,L]
