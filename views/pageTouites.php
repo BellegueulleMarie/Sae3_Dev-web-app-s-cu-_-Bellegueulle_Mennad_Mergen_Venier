@@ -4,21 +4,21 @@
 // j'initialise la variable touites
 $touites = [
     [
-        'auteur' => 'premier',
+        'auteur' => 'toto',
         'texte' => 'premierTexte',
         'date' => '2026-11-01 10:30:00',
         'like' => 12,
         'image' => null
     ],
     [
-        'auteur' => 'second',
+        'auteur' => 'tata',
         'texte' => 'secondTexte',
         'date' => '2026-11-03 09:15:00',
         'like' => 5,
         'image' => null
     ],
     [
-        'auteur' => 'troisième',
+        'auteur' => 'titi',
         'texte' => 'troisièmeTexte',
         'date' => '2026-11-02 14:00:00',
         'like' => 7,

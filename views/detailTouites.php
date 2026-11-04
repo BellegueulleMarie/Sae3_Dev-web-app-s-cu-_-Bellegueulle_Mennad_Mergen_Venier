@@ -1,17 +1,45 @@
 <?php
 
-include 'donneesTouites.php';
+$touites = [
+        [
+                'id' => 1,
+                'auteur' => 'toto',
+                'texte' => 'premierTexte',
+                'date' => '2026-11-01 10:30:00',
+                'like' => 12,
+                'image' => null
+        ],
+        [
+                'id' => 2,
+                'auteur' => 'tata',
+                'texte' => 'secondTexte',
+                'date' => '2026-11-03 09:15:00',
+                'like' => 5,
+                'image' => null
+        ],
+        [
+                'id' => 3,
+                'auteur' => 'titi',
+                'texte' => 'troisièmeTexte',
+                'date' => '2026-11-02 14:00:00',
+                'like' => 7,
+                'image' => null
+        ]
+];
 
-$id = $_GET['id'];
 
 $touiteTrouve = null;
 
-foreach ($touites as $touite) {
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
-    if ($touite['id'] == $id) {
-        $touiteTrouve = $touite;
+    foreach ($touites as $touite) {
+
+        if ($touite['id'] == $id) {
+            $touiteTrouve = $touite;
+            break;
+        }
     }
-
 }
 
 ?>
@@ -35,21 +63,21 @@ if ($touiteTrouve != null) {
     echo "<h2>" . htmlspecialchars($touiteTrouve['auteur']) . "</h2>";
     echo "<p>" . htmlspecialchars($touiteTrouve['texte']) . "</p>";
     echo "<p>Date : " . htmlspecialchars($touiteTrouve['date']) . "</p>";
-    echo "<p>Like : " . $touiteTrouve['Like'] . "</p>";
+
+    echo "<p>Like : " . $touiteTrouve['like'] . "</p>";
 
     if ($touiteTrouve['image'] != null) {
         echo "<img src='" . htmlspecialchars($touiteTrouve['image']) . "' alt='Image du touite'>";
     }
 
 } else {
-
     echo "<p>Touite introuvable.</p>";
-
 }
 
 ?>
 
-<a href="pageTouites.php">Retour à l'accueil</a>
+<br><br>
+<a href="pagetouites.php">Retour arrière</a>
 
 </body>
 </html>
