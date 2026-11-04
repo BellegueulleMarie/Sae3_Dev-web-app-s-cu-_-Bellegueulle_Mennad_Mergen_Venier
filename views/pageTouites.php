@@ -21,6 +21,11 @@ function e(string $value): string
 <main>
     <h1>Les derniers touites</h1>
     <p><a class="button" href="index.php">Accueil</a></p>
+    <p>
+        <a class="button" href="index.php?route=touites/nouveau">
+            Écrire un touite
+        </a>
+    </p>
     <?php if ($touites === []): ?>
         <p>Aucun touite enregistré.</p>
     <?php else: ?>
