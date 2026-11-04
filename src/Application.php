@@ -14,6 +14,8 @@ use App\Action\UtilisateurListAction;
 use App\Action\UtilisateurShowAction;
 use App\Action\UtilisateurUpdateAction;
 use App\Action\UtilisateurFollowAction;
+use App\Action\TouiteListAction;
+use App\Action\TouiteShowAction;
 use RuntimeException;
 use Throwable;
 
@@ -34,6 +36,8 @@ final class Application
             $repository = UtilisateurRepository::getInstance($database);
             $touiteRepository = TouiteRepository::getInstance($database);
             $dispatcher->get('/', [new HomeAction($touiteRepository), 'execute']);
+            $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
+            $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository), 'execute']);
             $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository), 'execute']);
             $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
@@ -52,6 +56,8 @@ final class Application
             $dispatcher->post('/api/utilisateurs/{id}/modifier', $databaseUnavailable);
             $dispatcher->get('/utilisateurs/creation', $databaseUnavailable);
             $dispatcher->post('/utilisateurs/creation', $databaseUnavailable);
+            $dispatcher->get('/touites', $databaseUnavailable);
+            $dispatcher->get('/touites/{id}', $databaseUnavailable);
         }
 
         return ['config' => $config, 'dispatcher' => $dispatcher];

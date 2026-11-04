@@ -22,9 +22,16 @@ final class TouiteRepository implements TouiteRepositoryInterface
     public function all(): array
     {
         return $this->db->query(
-            'SELECT id AS id_touite, texte, date_publication AS date_touite,
-                    auteur_id AS id_auteur, image AS id_img
-             FROM touites
+            'SELECT t.id AS id_touite, t.texte,
+                    t.date_publication AS date_touite,
+                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    u.nom_utilisateur AS auteur,
+                    COUNT(l.utilisateur_id) AS nombre_likes
+             FROM touites t
+             JOIN utilisateurs u ON u.id = t.auteur_id
+             LEFT JOIN likes l ON l.touite_id = t.id
+             GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                      t.image, u.nom_utilisateur
              ORDER BY date_publication DESC'
         )->fetchAll();
     }
@@ -33,10 +40,17 @@ final class TouiteRepository implements TouiteRepositoryInterface
     public function find(int $id): ?array
     {
         $request = $this->db->prepare(
-            'SELECT id AS id_touite, texte, date_publication AS date_touite,
-                    auteur_id AS id_auteur, image AS id_img
-             FROM touites
-             WHERE id = :id'
+            'SELECT t.id AS id_touite, t.texte,
+                    t.date_publication AS date_touite,
+                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    u.nom_utilisateur AS auteur,
+                    COUNT(l.utilisateur_id) AS nombre_likes
+             FROM touites t
+             JOIN utilisateurs u ON u.id = t.auteur_id
+             LEFT JOIN likes l ON l.touite_id = t.id
+             WHERE t.id = :id
+             GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                      t.image, u.nom_utilisateur'
         );
         $request->execute(['id' => $id]);
         $touite = $request->fetch();

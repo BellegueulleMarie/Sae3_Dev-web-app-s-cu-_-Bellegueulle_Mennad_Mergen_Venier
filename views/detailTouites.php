@@ -1,83 +1,36 @@
 <?php
 
-$touites = [
-        [
-                'id' => 1,
-                'auteur' => 'toto',
-                'texte' => 'premierTexte',
-                'date' => '2026-11-01 10:30:00',
-                'like' => 12,
-                'image' => null
-        ],
-        [
-                'id' => 2,
-                'auteur' => 'tata',
-                'texte' => 'secondTexte',
-                'date' => '2026-11-03 09:15:00',
-                'like' => 5,
-                'image' => null
-        ],
-        [
-                'id' => 3,
-                'auteur' => 'titi',
-                'texte' => 'troisièmeTexte',
-                'date' => '2026-11-02 14:00:00',
-                'like' => 7,
-                'image' => null
-        ]
-];
+declare(strict_types=1);
 
+/** @var array<string, mixed>|null $touite */
+$touite = $touite ?? null;
 
-$touiteTrouve = null;
-
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-
-    foreach ($touites as $touite) {
-
-        if ($touite['id'] == $id) {
-            $touiteTrouve = $touite;
-            break;
-        }
-    }
+function esc(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
-
 ?>
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Détail du touite</title>
+    <link rel="stylesheet" href="/CSS/utilisateur.css">
 </head>
-
 <body>
-
-<h1>Détail du touite</h1>
-
-<?php
-
-if ($touiteTrouve != null) {
-
-    echo "<h2>" . htmlspecialchars($touiteTrouve['auteur']) . "</h2>";
-    echo "<p>" . htmlspecialchars($touiteTrouve['texte']) . "</p>";
-    echo "<p>Date : " . htmlspecialchars($touiteTrouve['date']) . "</p>";
-
-    echo "<p>Like : " . $touiteTrouve['like'] . "</p>";
-
-    if ($touiteTrouve['image'] != null) {
-        echo "<img src='" . htmlspecialchars($touiteTrouve['image']) . "' alt='Image du touite'>";
-    }
-
-} else {
-    echo "<p>Touite introuvable.</p>";
-}
-
-?>
-
-<br><br>
-<a href="pagetouites.php">Retour arrière</a>
-
+<main>
+    <?php if ($touite === null): ?>
+        <h1>Touite introuvable</h1>
+    <?php else: ?>
+        <h1>Touite de <?= esc((string) $touite['auteur']) ?></h1>
+        <p><?= nl2br(esc((string) $touite['texte'])) ?></p>
+        <p><small><?= esc((string) $touite['date_touite']) ?></small></p>
+        <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
+        <?php if ((string) ($touite['id_img'] ?? '') !== ''): ?>
+            <img src="<?= esc((string) $touite['id_img']) ?>" alt="Image du touite">
+        <?php endif; ?>
+    <?php endif; ?>
+    <p><a class="button" href="index.php?route=touites">Retour aux touites</a></p>
+</main>
 </body>
 </html>
