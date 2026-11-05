@@ -18,9 +18,10 @@ declare(strict_types=1);
     <h1>Écrire un touite</h1>
 
     <form method="POST" action="index.php?route=touites/publier">
+        <label for="nom_utilisateur">Votre nom d'utilisateur :</label>
+        <input type="text" id="nom_utilisateur" name="nom_utilisateur" required placeholder="Ex: alice">
 
         <label for="texte">Votre touite :</label>
-
         <textarea
             id="texte"
             name="texte"
@@ -30,9 +31,7 @@ declare(strict_types=1);
         ></textarea>
 
         <p>235 caractères maximum.</p>
-
         <button type="submit">Publier</button>
-
     </form>
 
     <p>

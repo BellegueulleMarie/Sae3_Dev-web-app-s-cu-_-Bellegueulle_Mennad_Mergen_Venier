@@ -35,9 +35,14 @@ final class Application
             $database = Connection::create($config['database']);
             $repository = UtilisateurRepository::getInstance($database);
             $touiteRepository = TouiteRepository::getInstance($database);
+
             $dispatcher->get('/', [new HomeAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository), 'execute']);
+
+            $dispatcher->get('/touites/nouveau', [new \App\Action\TouitePublishAction($touiteRepository), 'execute']);
+            $dispatcher->post('/touites/publier', [new \App\Action\TouitePublishAction($touiteRepository), 'execute']);
+
             $dispatcher->get('/api/utilisateurs', [new UtilisateurListAction($repository), 'execute']);
             $dispatcher->get('/api/utilisateurs/{id}', [new UtilisateurShowAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
