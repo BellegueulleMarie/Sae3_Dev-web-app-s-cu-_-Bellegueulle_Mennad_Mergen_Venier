@@ -89,16 +89,28 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $request->fetchAll();
     }
 
-    public function create(int $id, string $texte, int $auteur): void
+    public function create(string $texte, int $auteurId, ?int $idImg = null): int
     {
         $request = $this->db->prepare(
-            'INSERT INTO touites (id, texte, auteur_id)
-             VALUES (:id, :texte, :auteur)'
+            'INSERT INTO TOUITE (texte, date_touite, id_auteur, id_img)
+             VALUES (:texte, SYSDATE, :auteur, :id_img)'
         );
         $request->execute([
-            'id' => $id,
             'texte' => $texte,
-            'auteur' => $auteur,
+            'auteur' => $auteurId,
+            'id_img' => $idImg,
         ]);
+        return (int) ($this->db->lastInsertId() ?: 0);
     }
+
+
+
+        public function findAuthorIdByName(string $username): ?int
+            {
+                $request = $this->db->prepare('SELECT id FROM utilisateurs WHERE nom_utilisateur = :username');
+                $request->execute(['username' => $username]);
+                $id = $request->fetchColumn();
+
+                 return $id !== false ? (int) $id : null;
+            }
 }
