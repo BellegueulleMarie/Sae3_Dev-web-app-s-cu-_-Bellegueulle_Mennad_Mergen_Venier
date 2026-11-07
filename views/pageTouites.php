@@ -31,7 +31,11 @@ function e(string $value): string
     <?php else: ?>
         <?php foreach ($touites as $touite): ?>
             <article>
-                <h2><?= e((string) $touite['auteur']) ?></h2>
+                <h2>
+                    <a href="index.php?route=utilisateurs/<?= (int) $touite['id_auteur'] ?>/profil">
+                        <?= e((string) $touite['auteur']) ?>
+                    </a>
+                </h2>
                 <p><?= nl2br(e((string) $touite['texte'])) ?></p>
                 <small><?= e((string) $touite['date_touite']) ?></small>
                 <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>

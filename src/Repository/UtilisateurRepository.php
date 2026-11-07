@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Contracts\UtilisateurRepositoryInterface;
+use InvalidArgumentException;
 use PDO;
 
 final class UtilisateurRepository implements UtilisateurRepositoryInterface
@@ -50,7 +51,7 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     public function follow(int $followerId, int $followedId): void
     {
         if ($followerId === $followedId) {
-            throw new \InvalidArgumentException('Un utilisateur ne peut pas se suivre lui-même.');
+            throw new InvalidArgumentException('Un utilisateur ne peut pas se suivre lui-même.');
         }
 
         $statement = $this->db->prepare(

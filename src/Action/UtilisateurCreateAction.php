@@ -18,6 +18,12 @@ class UtilisateurCreateAction implements ActionInterface
 
     public function execute(array $parameters = []): void
     {
+        $currentUserId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
+        if ($currentUserId !== false && $currentUserId > 0) {
+            header('Location: index.php?route=utilisateurs/' . (int) $currentUserId . '/profil');
+            exit;
+        }
+
         $error = '';
         $success = '';
         $values = [

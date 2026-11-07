@@ -82,6 +82,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
              ORDER BY t.date_publication DESC, t.id DESC'
         );
         $request->execute([
+            'own_user' => $userId,
             'followed_by' => $userId,
             'subscribed_by' => $userId,
         ]);
