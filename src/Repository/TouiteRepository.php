@@ -66,8 +66,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur, t.image AS id_img
              FROM touites t
-             WHERE t.auteur_id = :own_user
-                OR EXISTS (
+             WHERE EXISTS (
                  SELECT 1
                  FROM suivis s
                  WHERE s.suiveur_id = :followed_by

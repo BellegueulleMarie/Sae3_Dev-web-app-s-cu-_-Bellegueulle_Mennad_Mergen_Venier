@@ -27,7 +27,7 @@ final class HomeAction implements ActionInterface
         } else {
             $touites = $this->touiteRepository->wall($userId);
             if ($touites === []) {
-                $message = 'Votre mur est vide : vous n’avez encore publié aucune touite et aucun abonnement ne correspond.';
+                $message = 'Votre mur est vide : aucun utilisateur suivi ou tag suivi ne contient de touite à afficher.';
             }
         }
 
