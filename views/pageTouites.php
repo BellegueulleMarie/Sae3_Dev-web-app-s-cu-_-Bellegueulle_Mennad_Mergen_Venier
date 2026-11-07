@@ -38,6 +38,25 @@ function e(string $value): string
                 <a href="index.php?route=touites/<?= (int) $touite['id_touite'] ?>">Voir le détail</a>
             </article>
         <?php endforeach; ?>
+    <?php
+    // Variables attendues : $page, $totalPages
+    $page = $page ?? 1;
+    $totalPages = $totalPages ?? 1;
+    ?>
+
+
+    <?php if ($totalPages > 1): ?>
+        <nav class="pagination">
+            <?php if ($page > 1): ?>
+                <a class="button" href="index.php?route=touites&page=<?= $page - 1 ?>">Page précédente</a>
+            <?php endif; ?>
+
+            <span>Page <?= $page ?> sur <?= $totalPages ?></span>
+
+            <?php if ($page < $totalPages): ?>
+                <a class="button" href="index.php?route=touites&page=<?= $page + 1 ?>">Page suivante</a>
+            <?php endif; ?>
+        </nav>
     <?php endif; ?>
 </main>
 </body>
