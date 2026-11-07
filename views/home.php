@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 function pageAccueil(string $message, array $touites): void
 {
+    $userId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
+    $isConnected = $userId !== false && $userId > 0;
+
     echo <<<HTML
         <!doctype html>
         <html lang="fr">
@@ -17,7 +20,15 @@ function pageAccueil(string $message, array $touites): void
             <main>
                 <h1>Touiteur.app</h1>
                 <nav aria-label="Navigation principale">
-                    <a class="button" href="index.php?route=utilisateurs/creation">Accéder aux utilisateurs</a>
+                    <?php if ($isConnected): ?>
+                        <a class="profile-avatar" href="index.php?route=utilisateurs/<?= (int) $userId ?>/profil"
+                           aria-label="Voir mon profil">U</a>
+                        <a class="button" href="index.php?route=utilisateurs/<?= (int) $userId ?>/profil">Mon profil</a>
+                        <a class="button" href="index.php?route=deconnexion">Se déconnecter</a>
+                    <?php else: ?>
+                        <a class="button" href="index.php?route=utilisateurs">Se connecter</a>
+                        <a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>
+                    <?php endif; ?>
                     <a class="button" href="index.php?route=touites">Voir les touites</a>
                 </nav>
                 <h2>Mon mur</h2>
