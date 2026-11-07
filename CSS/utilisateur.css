@@ -29,6 +29,14 @@ input {
     box-sizing: border-box;
 }
 
+select {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0 16px;
+    box-sizing: border-box;
+}
+
 button {
     padding: 9px 18px;
     color: white;
@@ -52,5 +60,23 @@ button:hover {
 }
 
 .button:hover {
+    background: #185a9d;
+}
+
+.profile-avatar {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    border-radius: 50%;
+    color: white;
+    background: #2878c8;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.profile-avatar:hover {
     background: #185a9d;
 }

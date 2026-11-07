@@ -22,7 +22,12 @@ function esc(string $value): string
     <?php if ($touite === null): ?>
         <h1>Touite introuvable</h1>
     <?php else: ?>
-        <h1>Touite de <?= esc((string) $touite['auteur']) ?></h1>
+        <h1>
+            Touite de
+            <a href="index.php?route=utilisateurs/<?= (int) $touite['id_auteur'] ?>/profil">
+                <?= esc((string) $touite['auteur']) ?>
+            </a>
+        </h1>
         <p><?= nl2br(esc((string) $touite['texte'])) ?></p>
         <p><small><?= esc((string) $touite['date_touite']) ?></small></p>
         <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
