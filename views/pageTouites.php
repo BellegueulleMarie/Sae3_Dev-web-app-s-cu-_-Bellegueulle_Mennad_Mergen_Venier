@@ -21,6 +21,11 @@ function e(string $value): string
 <main>
     <h1>Les derniers touites</h1>
     <p><a class="button" href="index.php">Accueil</a></p>
+    <p>
+        <a class="button" href="index.php?route=touites/nouveau">
+            Écrire un touite
+        </a>
+    </p>
     <?php if ($touites === []): ?>
         <p>Aucun touite enregistré.</p>
     <?php else: ?>
@@ -37,6 +42,25 @@ function e(string $value): string
                 <a href="index.php?route=touites/<?= (int) $touite['id_touite'] ?>">Voir le détail</a>
             </article>
         <?php endforeach; ?>
+    <?php
+    // Variables attendues : $page, $totalPages
+    $page = $page ?? 1;
+    $totalPages = $totalPages ?? 1;
+    ?>
+
+
+    <?php if ($totalPages > 1): ?>
+        <nav class="pagination">
+            <?php if ($page > 1): ?>
+                <a class="button" href="index.php?route=touites&page=<?= $page - 1 ?>">Page précédente</a>
+            <?php endif; ?>
+
+            <span>Page <?= $page ?> sur <?= $totalPages ?></span>
+
+            <?php if ($page < $totalPages): ?>
+                <a class="button" href="index.php?route=touites&page=<?= $page + 1 ?>">Page suivante</a>
+            <?php endif; ?>
+        </nav>
     <?php endif; ?>
 </main>
 </body>

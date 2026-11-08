@@ -7,6 +7,7 @@ namespace App;
 use App\Http\Dispatcher;
 use App\Database\Connection;
 use App\Repository\TouiteRepository;
+use App\Action\TouitePublishAction;
 use App\Repository\UtilisateurRepository;
 use App\Action\UtilisateurCreateAction;
 use App\Action\HomeAction;
@@ -43,6 +44,8 @@ final class Application
             $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository), 'execute']);
             $dispatcher->get('/utilisateurs/{id}/profil', [new UtilisateurProfileAction($repository), 'execute']);
+            $dispatcher->get('/touites/nouveau', [new TouitePublishAction($touiteRepository), 'execute']);
+                        $dispatcher->post('/touites/publier', [new TouitePublishAction($touiteRepository), 'execute']);
             $dispatcher->get('/utilisateurs', [new UtilisateurPageAction($repository), 'execute']);
             $dispatcher->get('/connexion', [new UtilisateurLoginAction($repository), 'execute']);
             $dispatcher->post('/connexion', [new UtilisateurLoginAction($repository), 'execute']);
@@ -67,6 +70,8 @@ final class Application
             $dispatcher->post('/utilisateurs/creation', $databaseUnavailable);
             $dispatcher->get('/touites', $databaseUnavailable);
             $dispatcher->get('/touites/{id}', $databaseUnavailable);
+            $dispatcher->get('/touites/nouveau', $databaseUnavailable);
+                        $dispatcher->post('/touites/publier', $databaseUnavailable);
             $dispatcher->get('/utilisateurs/{id}/profil', $databaseUnavailable);
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);

@@ -90,16 +90,61 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $request->fetchAll();
     }
 
-    public function create(int $id, string $texte, int $auteur): void
+    public function create(string $texte, int $auteurId, ?int $idImg = null): int
     {
         $request = $this->db->prepare(
-            'INSERT INTO touites (id, texte, auteur_id)
-             VALUES (:id, :texte, :auteur)'
+            'INSERT INTO TOUITE (texte, date_touite, id_auteur, id_img)
+             VALUES (:texte, SYSDATE, :auteur, :id_img)'
         );
         $request->execute([
-            'id' => $id,
             'texte' => $texte,
-            'auteur' => $auteur,
+            'auteur' => $auteurId,
+            'id_img' => $idImg,
         ]);
+        return (int) ($this->db->lastInsertId() ?: 0);
     }
+
+
+
+        public function findAuthorIdByName(string $username): ?int
+            {
+                $request = $this->db->prepare('SELECT id FROM utilisateurs WHERE nom_utilisateur = :username');
+                $request->execute(['username' => $username]);
+                $id = $request->fetchColumn();
+
+                 return $id !== false ? (int) $id : null;
+            }
+
+
+        public function count(): int
+        {
+            $result = $this->db->query('SELECT COUNT(*) FROM TOUITE')->fetchColumn();
+            return (int) $result;
+        }
+
+        /** @return list<array<string, mixed>> */
+        public function paginate(int $page, int $perPage = 10): array
+        {
+            $offset = ($page - 1) * $perPage;
+
+            $request = $this->db->prepare(
+                'SELECT t.id_touite AS id_touite, t.texte,
+                        t.date_touite AS date_touite,
+                        t.id_auteur AS id_auteur, t.id_img AS id_img,
+                        u.nom AS auteur,
+                        0 AS nombre_likes
+                 FROM TOUITE t
+                 JOIN UTILISATEUR u ON u.id_util = t.id_auteur
+                 ORDER BY t.date_touite DESC
+                 LIMIT :limit OFFSET :offset'
+            );
+            $request->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $request->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $request->execute();
+
+            return $request->fetchAll();
+        }
+
+
+
 }
