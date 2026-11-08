@@ -17,5 +17,13 @@ interface TouiteRepositoryInterface
     /** @return list<array<string, mixed>> */
     public function wall(int $userId): array;
 
-    public function create(int $id, string $texte, int $auteur): void;
+    /** @return list<array<string, mixed>> */
+    public function byAuthor(int $authorId): array;
+
+    public function create(string $texte, int $auteurId, ?int $idImg = null): int;
+
+    public function count(): int;
+
+    /** @return list<array<string, mixed>> */
+    public function paginate(int $page, int $perPage = 10): array;
 }

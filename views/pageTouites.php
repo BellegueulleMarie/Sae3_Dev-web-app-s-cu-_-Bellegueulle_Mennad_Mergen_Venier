@@ -62,6 +62,7 @@ function e(string $value): string
             <?php endif; ?>
         </nav>
     <?php endif; ?>
+    <?php endif; ?>
 </main>
 </body>
 </html>

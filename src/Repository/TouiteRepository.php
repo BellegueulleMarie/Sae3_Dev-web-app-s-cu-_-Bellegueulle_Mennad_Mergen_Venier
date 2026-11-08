@@ -61,31 +61,41 @@ final class TouiteRepository implements TouiteRepositoryInterface
     /** @return list<array<string, mixed>> */
     public function wall(int $userId): array
     {
-        $request = $this->db->prepare(
-            'SELECT DISTINCT t.id AS id_touite, t.texte,
+        $request = $this->db->query(
+            'SELECT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
-                    t.auteur_id AS id_auteur, t.image AS id_img
+                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    u.nom_utilisateur AS auteur,
+                    COUNT(l.utilisateur_id) AS nombre_likes
              FROM touites t
-             WHERE EXISTS (
-                 SELECT 1
-                 FROM suivis s
-                 WHERE s.suiveur_id = :followed_by
-                   AND s.suivi_id = t.auteur_id
-             )
-             OR EXISTS (
-                 SELECT 1
-                 FROM touite_tags ct
-                 JOIN abonnements_tags at ON at.tag_id = ct.tag_id
-                 WHERE at.utilisateur_id = :subscribed_by
-                   AND ct.touite_id = t.id
-             )
+             JOIN utilisateurs u ON u.id = t.auteur_id
+             LEFT JOIN likes l ON l.touite_id = t.id
+             GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                      t.image, u.nom_utilisateur
              ORDER BY t.date_publication DESC, t.id DESC'
         );
-        $request->execute([
-            'own_user' => $userId,
-            'followed_by' => $userId,
-            'subscribed_by' => $userId,
-        ]);
+
+        return $request->fetchAll();
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function byAuthor(int $authorId): array
+    {
+        $request = $this->db->prepare(
+            'SELECT t.id AS id_touite, t.texte,
+                    t.date_publication AS date_touite,
+                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    u.nom_utilisateur AS auteur,
+                    COUNT(l.utilisateur_id) AS nombre_likes
+             FROM touites t
+             JOIN utilisateurs u ON u.id = t.auteur_id
+             LEFT JOIN likes l ON l.touite_id = t.id
+             WHERE t.auteur_id = :author_id
+             GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                      t.image, u.nom_utilisateur
+             ORDER BY t.date_publication DESC, t.id DESC'
+        );
+        $request->execute(['author_id' => $authorId]);
 
         return $request->fetchAll();
     }
@@ -93,8 +103,8 @@ final class TouiteRepository implements TouiteRepositoryInterface
     public function create(string $texte, int $auteurId, ?int $idImg = null): int
     {
         $request = $this->db->prepare(
-            'INSERT INTO TOUITE (texte, date_touite, id_auteur, id_img)
-             VALUES (:texte, SYSDATE, :auteur, :id_img)'
+            'INSERT INTO touites (texte, auteur_id, image)
+             VALUES (:texte, :auteur, :id_img)'
         );
         $request->execute([
             'texte' => $texte,
@@ -118,7 +128,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
 
         public function count(): int
         {
-            $result = $this->db->query('SELECT COUNT(*) FROM TOUITE')->fetchColumn();
+            $result = $this->db->query('SELECT COUNT(*) FROM touites')->fetchColumn();
             return (int) $result;
         }
 
@@ -128,14 +138,17 @@ final class TouiteRepository implements TouiteRepositoryInterface
             $offset = ($page - 1) * $perPage;
 
             $request = $this->db->prepare(
-                'SELECT t.id_touite AS id_touite, t.texte,
-                        t.date_touite AS date_touite,
-                        t.id_auteur AS id_auteur, t.id_img AS id_img,
-                        u.nom AS auteur,
-                        0 AS nombre_likes
-                 FROM TOUITE t
-                 JOIN UTILISATEUR u ON u.id_util = t.id_auteur
-                 ORDER BY t.date_touite DESC
+                'SELECT t.id AS id_touite, t.texte,
+                        t.date_publication AS date_touite,
+                        t.auteur_id AS id_auteur, t.image AS id_img,
+                        u.nom_utilisateur AS auteur,
+                        COUNT(l.utilisateur_id) AS nombre_likes
+                 FROM touites t
+                 JOIN utilisateurs u ON u.id = t.auteur_id
+                 LEFT JOIN likes l ON l.touite_id = t.id
+                 GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                          t.image, u.nom_utilisateur
+                 ORDER BY t.date_publication DESC, t.id DESC
                  LIMIT :limit OFFSET :offset'
             );
             $request->bindValue(':limit', $perPage, PDO::PARAM_INT);

@@ -17,9 +17,11 @@ declare(strict_types=1);
 
     <h1>Écrire un touite</h1>
 
+    <?php if (($error ?? '') !== ''): ?>
+        <p role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
+
     <form method="POST" action="index.php?route=touites/publier">
-        <label for="nom_utilisateur">Votre nom d'utilisateur :</label>
-        <input type="text" id="nom_utilisateur" name="nom_utilisateur" required placeholder="Ex: alice">
 
         <label for="texte">Votre touite :</label>
         <textarea
@@ -42,4 +44,3 @@ declare(strict_types=1);
 
 </body>
 </html>
-

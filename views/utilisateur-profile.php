@@ -27,6 +27,17 @@ function profilEchapper(string $value): string
         <p><strong>Email :</strong> <?= profilEchapper((string) $utilisateur['email']) ?></p>
         <p><strong>Nombre de touites :</strong> <?= (int) $utilisateur['nb_touites'] ?></p>
         <p><strong>Nombre de suiveurs :</strong> <?= (int) $utilisateur['followers_count'] ?></p>
+        <h2>Touites de <?= profilEchapper((string) $utilisateur['nom']) ?></h2>
+        <?php if (($touites ?? []) === []): ?>
+            <p>Cet utilisateur n’a publié aucune touite.</p>
+        <?php else: ?>
+            <?php foreach ($touites as $touite): ?>
+                <article>
+                    <p><?= nl2br(profilEchapper((string) $touite['texte'])) ?></p>
+                    <small><?= profilEchapper((string) $touite['date_touite']) ?></small>
+                </article>
+            <?php endforeach; ?>
+        <?php endif; ?>
     <?php endif; ?>
     <p>
         <a class="button" href="index.php?route=touites">Voir les touites</a>

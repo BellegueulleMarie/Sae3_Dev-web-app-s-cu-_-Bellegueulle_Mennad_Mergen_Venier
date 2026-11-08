@@ -21,7 +21,7 @@ final class UtilisateurPageAction implements ActionInterface
             return;
         }
 
-        header('Location: index.php?route=utilisateurs/' . (int) $userId . '/profil');
-        exit;
+        $utilisateurs = $this->repository->all();
+        require dirname(__DIR__, 2) . '/views/utilisateurs.php';
     }
 }

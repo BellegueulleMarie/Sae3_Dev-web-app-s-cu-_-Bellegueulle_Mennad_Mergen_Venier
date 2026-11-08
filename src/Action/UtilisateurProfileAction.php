@@ -6,10 +6,14 @@ namespace App\Action;
 
 use App\Contracts\ActionInterface;
 use App\Contracts\UtilisateurRepositoryInterface;
+use App\Contracts\TouiteRepositoryInterface;
 
 final class UtilisateurProfileAction implements ActionInterface
 {
-    public function __construct(private readonly UtilisateurRepositoryInterface $repository) {}
+    public function __construct(
+        private readonly UtilisateurRepositoryInterface $repository,
+        private readonly TouiteRepositoryInterface $touiteRepository
+    ) {}
 
     public function execute(array $parameters = []): void
     {
@@ -20,13 +24,11 @@ final class UtilisateurProfileAction implements ActionInterface
         }
 
         $requestedId = filter_var($parameters['id'] ?? null, FILTER_VALIDATE_INT);
-        if ($requestedId !== false && $requestedId > 0 && (int) $requestedId !== (int) $sessionId) {
-            header('Location: index.php?route=utilisateurs/' . (int) $sessionId . '/profil');
-            exit;
-        }
-
-        $id = (int) $sessionId;
+        $id = $requestedId !== false && $requestedId > 0
+            ? (int) $requestedId
+            : (int) $sessionId;
         $utilisateur = $this->repository->find($id);
+        $touites = $this->touiteRepository->byAuthor($id);
 
         if ($utilisateur !== null) {
             $utilisateur['followers_count'] = $this->repository->followerCount((int) $id);

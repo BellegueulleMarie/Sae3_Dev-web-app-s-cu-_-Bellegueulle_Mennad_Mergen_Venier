@@ -11,6 +11,7 @@ function pageAccueil(string $message, array $touites): void
             '/profil" aria-label="Voir mon profil">U</a>' .
           '<a class="button" href="index.php?route=utilisateurs/' . (int) $userId .
             '/profil">Mon profil</a>' .
+          '<a class="button" href="index.php?route=utilisateurs">Utilisateurs</a>' .
           '<a class="button" href="index.php?route=deconnexion">Se déconnecter</a>'
         : '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
           '<a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>';
@@ -29,7 +30,7 @@ function pageAccueil(string $message, array $touites): void
                 <h1>Touiteur.app</h1>
                 <nav aria-label="Navigation principale">
                     $navigation
-                    <a class="button" href="index.php?route=touites">Voir les touites</a>
+                    <a class="button" href="index.php?route=touites/nouveau">Écrire un touite</a>
                 </nav>
                 <h2>Mon mur</h2>
 HTML;
@@ -70,11 +71,19 @@ function afficherMessageMur(string $message): void
 /** @param array<string, mixed> $touite */
 function afficherTouite(array $touite): void
 {
+    $auteur = echapper((string) ($touite['auteur'] ?? ''));
+    $auteurId = (int) ($touite['id_auteur'] ?? 0);
+    $auteurHtml = $auteurId > 0
+        ? '<a href="index.php?route=utilisateurs/' . $auteurId . '/profil">' . $auteur . '</a>'
+        : $auteur;
     $texte = nl2br(echapper((string) ($touite['texte'] ?? '')));
     $date = echapper((string) ($touite['date_touite'] ?? ''));
 
     echo <<<HTML
         <article>
+            <header>
+                <strong aria-label="Auteur de la touite">$auteurHtml</strong>
+            </header>
             <p>$texte</p>
             <small>$date</small>
         </article>

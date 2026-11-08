@@ -15,10 +15,10 @@ final class TouiteListAction implements ActionInterface
     {
 
         $perPage=10;
-        $page = max(1, filter_var($parameters['page'] ?? 1, FILTER_VALIDATE_INT);
+        $page = max(1, (int) filter_var($parameters['page'] ?? 1, FILTER_VALIDATE_INT));
 
-        $totalPages=(int) ceil($totalTouites / $perPage);
         $totalTouites= $this->repository->count();
+        $totalPages=(int) ceil($totalTouites / $perPage);
 
         if( $page > $totalPages && $totalPages > 0) {
            $page= $totalPages;
