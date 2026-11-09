@@ -13,17 +13,21 @@ final class TouiteListAction implements ActionInterface
 
     public function execute(array $parameters = []): void
     {
+        $perPage = 10;
+        $requestedPage = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+        $page = $requestedPage !== false && $requestedPage > 0 ? $requestedPage : 1;
+        $requestedAuthorId = filter_var($_GET['author'] ?? null, FILTER_VALIDATE_INT);
+        $authorId = $requestedAuthorId !== false && $requestedAuthorId > 0
+            ? $requestedAuthorId
+            : null;
 
-        $perPage=10;
-        $page = max(1, (int) filter_var($parameters['page'] ?? 1, FILTER_VALIDATE_INT));
+        $totalTouites = $this->repository->count($authorId);
+        $totalPages = (int) ceil($totalTouites / $perPage);
 
-        $totalTouites= $this->repository->count();
-        $totalPages=(int) ceil($totalTouites / $perPage);
-
-        if( $page > $totalPages && $totalPages > 0) {
-           $page= $totalPages;
+        if ($totalPages > 0 && $page > $totalPages) {
+            $page = $totalPages;
         }
-        $touites = $this->repository->paginate($page, $perPage);
+        $touites = $this->repository->paginate($page, $perPage, $authorId);
         require dirname(__DIR__, 2) . '/views/pageTouites.php';
     }
 }
