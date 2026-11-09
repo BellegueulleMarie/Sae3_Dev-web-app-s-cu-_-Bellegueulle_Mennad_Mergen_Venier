@@ -44,7 +44,7 @@ final class Application
             $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites/nouveau', [new TouitePublishAction($touiteRepository), 'execute']);
             $dispatcher->post('/touites/publier', [new TouitePublishAction($touiteRepository), 'execute']);
-            $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository), 'execute']);
+            $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository, $repository), 'execute']);
             $dispatcher->get('/utilisateurs/{id}/profil', [new UtilisateurProfileAction($repository, $touiteRepository), 'execute']);
             $dispatcher->get('/utilisateurs', [new UtilisateurPageAction($repository), 'execute']);
             $dispatcher->get('/connexion', [new UtilisateurLoginAction($repository), 'execute']);

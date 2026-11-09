@@ -31,6 +31,17 @@ function esc(string $value): string
         <p><?= nl2br(esc((string) $touite['texte'])) ?></p>
         <p><small><?= esc((string) $touite['date_touite']) ?></small></p>
         <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
+        <?php if (($currentUserId ?? false) !== false && ($currentUserId ?? 0) > 0): ?>
+            <?php if (!empty($isFollowing)): ?>
+                <button type="button" disabled>Suivi</button>
+            <?php elseif ((int) $touite['id_auteur'] !== (int) $currentUserId): ?>
+                <form method="post" action="index.php?route=api/utilisateurs/<?= (int) $touite['id_auteur'] ?>/suivre">
+                    <button type="submit">Suivre</button>
+                </form>
+            <?php endif; ?>
+        <?php else: ?>
+            <a class="button" href="index.php?route=connexion">Se connecter pour suivre</a>
+        <?php endif; ?>
         <?php if ((string) ($touite['id_img'] ?? '') !== ''): ?>
             <img src="<?= esc((string) $touite['id_img']) ?>" alt="Image du touite">
         <?php endif; ?>

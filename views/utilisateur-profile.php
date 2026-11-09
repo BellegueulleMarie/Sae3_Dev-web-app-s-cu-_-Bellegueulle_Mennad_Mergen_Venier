@@ -27,6 +27,15 @@ function profilEchapper(string $value): string
         <p><strong>Email :</strong> <?= profilEchapper((string) $utilisateur['email']) ?></p>
         <p><strong>Nombre de touites :</strong> <?= (int) $utilisateur['nb_touites'] ?></p>
         <p><strong>Nombre de suiveurs :</strong> <?= (int) $utilisateur['followers_count'] ?></p>
+        <?php if ((int) $utilisateur['id_util'] !== (int) ($_SESSION['user_id'] ?? 0)): ?>
+            <?php if (!empty($isFollowing)): ?>
+                <button type="button" disabled>Suivi</button>
+            <?php else: ?>
+                <form method="post" action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/suivre">
+                    <button type="submit">Suivre</button>
+                </form>
+            <?php endif; ?>
+        <?php endif; ?>
         <h2>Touites de <?= profilEchapper((string) $utilisateur['nom']) ?></h2>
         <?php if (($touites ?? []) === []): ?>
             <p>Cet utilisateur n’a publié aucune touite.</p>
