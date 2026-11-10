@@ -15,7 +15,7 @@ function e(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Les touites</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>

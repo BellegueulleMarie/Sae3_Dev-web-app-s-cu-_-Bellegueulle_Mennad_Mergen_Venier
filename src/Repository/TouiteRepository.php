@@ -61,8 +61,8 @@ final class TouiteRepository implements TouiteRepositoryInterface
     /** @return list<array<string, mixed>> */
     public function wall(int $userId): array
     {
-        $request = $this->db->query(
-            'SELECT t.id AS id_touite, t.texte,
+        $request = $this->db->prepare(
+            'SELECT DISTINCT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur, t.image AS id_img,
                     u.nom_utilisateur AS auteur,
@@ -70,10 +70,27 @@ final class TouiteRepository implements TouiteRepositoryInterface
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
+             WHERE EXISTS (
+                 SELECT 1
+                 FROM suivis s
+                 WHERE s.suiveur_id = :user_id_followed
+                   AND s.suivi_id = t.auteur_id
+             )
+             OR EXISTS (
+                 SELECT 1
+                 FROM touite_tags tt
+                 JOIN abonnements_tags at ON at.tag_id = tt.tag_id
+                 WHERE at.utilisateur_id = :user_id_tags
+                   AND tt.touite_id = t.id
+             )
              GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
                       t.image, u.nom_utilisateur
              ORDER BY t.date_publication DESC, t.id DESC'
         );
+        $request->execute([
+            'user_id_followed' => $userId,
+            'user_id_tags' => $userId,
+        ]);
 
         return $request->fetchAll();
     }
@@ -102,16 +119,40 @@ final class TouiteRepository implements TouiteRepositoryInterface
 
     public function create(string $texte, int $auteurId, ?int $idImg = null): int
     {
-        $request = $this->db->prepare(
-            'INSERT INTO touites (texte, auteur_id, image)
-             VALUES (:texte, :auteur, :id_img)'
-        );
-        $request->execute([
-            'texte' => $texte,
-            'auteur' => $auteurId,
-            'id_img' => $idImg,
-        ]);
-        return (int) ($this->db->lastInsertId() ?: 0);
+        $this->db->beginTransaction();
+        try {
+            $request = $this->db->prepare(
+                'INSERT INTO touites (texte, auteur_id, image)
+                 VALUES (:texte, :auteur, :id_img)'
+            );
+            $request->execute([
+                'texte' => $texte,
+                'auteur' => $auteurId,
+                'id_img' => $idImg,
+            ]);
+            $touiteId = (int) $this->db->lastInsertId();
+            preg_match_all('/#([\p{L}\p{N}_-]+)/u', $texte, $matches);
+            $tagNames = array_values(array_unique(array_map('mb_strtolower', $matches[1] ?? [])));
+            $findTag = $this->db->prepare('SELECT id FROM tags WHERE nom = :nom');
+            $createTag = $this->db->prepare('INSERT IGNORE INTO tags (nom) VALUES (:nom)');
+            $linkTag = $this->db->prepare(
+                'INSERT IGNORE INTO touite_tags (touite_id, tag_id)
+                 VALUES (:touite_id, :tag_id)'
+            );
+            foreach ($tagNames as $tagName) {
+                $createTag->execute(['nom' => $tagName]);
+                $findTag->execute(['nom' => $tagName]);
+                $tagId = $findTag->fetchColumn();
+                if ($tagId !== false) {
+                    $linkTag->execute(['touite_id' => $touiteId, 'tag_id' => (int) $tagId]);
+                }
+            }
+            $this->db->commit();
+            return $touiteId;
+        } catch (\Throwable $exception) {
+            $this->db->rollBack();
+            throw $exception;
+        }
     }
 
 
@@ -157,7 +198,5 @@ final class TouiteRepository implements TouiteRepositoryInterface
 
             return $request->fetchAll();
         }
-
-
 
 }

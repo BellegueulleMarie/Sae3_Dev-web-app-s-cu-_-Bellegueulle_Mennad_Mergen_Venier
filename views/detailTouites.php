@@ -15,7 +15,7 @@ function esc(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Détail du touite</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
@@ -33,10 +33,14 @@ function esc(string $value): string
         <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
         <?php if (($currentUserId ?? false) !== false && ($currentUserId ?? 0) > 0): ?>
             <?php if (!empty($isFollowing)): ?>
-                <button type="button" disabled>Suivi</button>
+                <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $touite['id_auteur'] ?>/desabonner">
+                    <button type="submit">Se désabonner</button>
+                    <span role="status"></span>
+                </form>
             <?php elseif ((int) $touite['id_auteur'] !== (int) $currentUserId): ?>
-                <form method="post" action="index.php?route=api/utilisateurs/<?= (int) $touite['id_auteur'] ?>/suivre">
+                <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $touite['id_auteur'] ?>/suivre">
                     <button type="submit">Suivre</button>
+                    <span role="status"></span>
                 </form>
             <?php endif; ?>
         <?php else: ?>
@@ -48,5 +52,34 @@ function esc(string $value): string
     <?php endif; ?>
     <p><a class="button" href="index.php?route=touites">Retour aux touites</a></p>
 </main>
+<script>
+document.querySelectorAll('.follow-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const button = form.querySelector('button');
+        const status = form.querySelector('[role="status"]');
+        button.disabled = true;
+        fetch(form.action, {method: 'POST', headers: {'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) throw new Error(data.error || 'Impossible de suivre cet utilisateur.');
+                    return data;
+                });
+            })
+            .then(function (data) {
+                const isUnfollow = form.action.includes('desabonner');
+                button.textContent = isUnfollow ? 'Suivre' : 'Se désabonner';
+                form.action = isUnfollow
+                    ? form.action.replace('/desabonner', '/suivre')
+                    : form.action.replace('/suivre', '/desabonner');
+                status.textContent = data.message;
+            })
+            .catch(function (error) {
+                button.disabled = false;
+                status.textContent = error.message;
+            });
+    });
+});
+</script>
 </body>
 </html>

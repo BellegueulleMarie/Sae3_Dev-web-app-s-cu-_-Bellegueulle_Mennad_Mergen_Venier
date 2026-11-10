@@ -16,6 +16,7 @@ final class UtilisateurFollowAction implements ActionInterface
     public function execute(array $parameters = []): void
     {
         header('Content-Type: application/json; charset=utf-8');
+        $isUnfollow = str_contains((string) ($_SERVER['REQUEST_URI'] ?? ''), '/desabonner');
 
         $followedId = filter_var($parameters['id'] ?? null, FILTER_VALIDATE_INT);
         $followerId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
@@ -40,7 +41,17 @@ final class UtilisateurFollowAction implements ActionInterface
         }
 
         if ($this->repository->isFollowing((int) $followerId, (int) $followedId)) {
+            if ($isUnfollow) {
+                $this->repository->unfollow((int) $followerId, (int) $followedId);
+                echo json_encode(['message' => 'Vous ne suivez plus cet utilisateur.']);
+                return;
+            }
             echo json_encode(['message' => 'Vous suivez déjà cet utilisateur.']);
+            return;
+        }
+
+        if ($isUnfollow) {
+            echo json_encode(['message' => 'Vous ne suivez pas cet utilisateur.']);
             return;
         }
 

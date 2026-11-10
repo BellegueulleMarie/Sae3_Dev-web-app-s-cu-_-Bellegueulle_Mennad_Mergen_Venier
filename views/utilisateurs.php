@@ -16,7 +16,7 @@ function utilisateursEchapper(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Utilisateurs</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
@@ -39,7 +39,11 @@ function utilisateursEchapper(string $value): string
                 </a>
                 <?php if ($currentUserId !== null && (int) $utilisateur['id_util'] !== (int) $currentUserId): ?>
                     <?php if (!empty($utilisateur['is_following'])): ?>
-                        <button type="button" disabled>Suivi</button>
+                        <form class="follow-form" method="post"
+                              action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/desabonner">
+                            <button type="submit">Se désabonner</button>
+                            <span class="follow-message" role="status"></span>
+                        </form>
                     <?php else: ?>
                         <form class="follow-form" method="post"
                               action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/suivre">
@@ -69,7 +73,11 @@ document.querySelectorAll('.follow-form').forEach(function (form) {
                 });
             })
             .then(function (data) {
-                button.textContent = 'Suivi';
+                const isUnfollow = form.action.includes('desabonner');
+                button.textContent = isUnfollow ? 'Suivre' : 'Se désabonner';
+                form.action = isUnfollow
+                    ? form.action.replace('/desabonner', '/suivre')
+                    : form.action.replace('/suivre', '/desabonner');
                 message.textContent = data.message;
             })
             .catch(function (error) {

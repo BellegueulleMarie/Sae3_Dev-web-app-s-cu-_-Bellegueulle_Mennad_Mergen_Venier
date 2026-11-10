@@ -26,4 +26,5 @@ interface TouiteRepositoryInterface
 
     /** @return list<array<string, mixed>> */
     public function paginate(int $page, int $perPage = 10): array;
+
 }

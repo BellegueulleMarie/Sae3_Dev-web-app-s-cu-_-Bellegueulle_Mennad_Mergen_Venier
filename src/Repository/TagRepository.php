@@ -36,16 +36,42 @@ final class TagRepository implements TagRepositoryInterface
         return $tag === false ? null : $tag;
     }
 
-    public function create(int $id, string $libelle, string $description): void
+    public function findByName(string $name): ?array
+    {
+        $request = $this->db->prepare('SELECT id, nom FROM tags WHERE nom = :nom');
+        $request->execute(['nom' => $name]);
+        $tag = $request->fetch();
+
+        return $tag === false ? null : $tag;
+    }
+
+    public function isSubscribed(int $userId, int $tagId): bool
     {
         $request = $this->db->prepare(
-            'INSERT INTO tags (id, nom)
-             VALUES (:id, :libelle)'
+            'SELECT 1 FROM abonnements_tags
+             WHERE utilisateur_id = :user_id AND tag_id = :tag_id'
         );
-        $request->execute([
-            'id' => $id,
-            'libelle' => $libelle,
-            'description' => $description,
-        ]);
+        $request->execute(['user_id' => $userId, 'tag_id' => $tagId]);
+
+        return $request->fetchColumn() !== false;
     }
+
+    public function subscribe(int $userId, int $tagId): void
+    {
+        $request = $this->db->prepare(
+            'INSERT IGNORE INTO abonnements_tags (utilisateur_id, tag_id)
+             VALUES (:user_id, :tag_id)'
+        );
+        $request->execute(['user_id' => $userId, 'tag_id' => $tagId]);
+    }
+
+    public function unsubscribe(int $userId, int $tagId): void
+    {
+        $request = $this->db->prepare(
+            'DELETE FROM abonnements_tags
+             WHERE utilisateur_id = :user_id AND tag_id = :tag_id'
+        );
+        $request->execute(['user_id' => $userId, 'tag_id' => $tagId]);
+    }
+
 }

@@ -78,6 +78,18 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         return $statement->fetchColumn() !== false;
     }
 
+    public function unfollow(int $followerId, int $followedId): void
+    {
+        $statement = $this->db->prepare(
+            'DELETE FROM suivis
+             WHERE suiveur_id = :follower AND suivi_id = :followed'
+        );
+        $statement->execute([
+            'follower' => $followerId,
+            'followed' => $followedId,
+        ]);
+    }
+
     public function followerCount(int $userId): int
     {
         $statement = $this->db->prepare(
@@ -120,4 +132,5 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         );
         $statement->execute(['id' => $id]);
     }
+
 }
