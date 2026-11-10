@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 /** @var list<array<string, mixed>> $utilisateurs */
 $utilisateurs = $utilisateurs ?? [];
+$currentUserId = $currentUserId ?? null;
 
 function utilisateursEchapper(string $value): string
 {
@@ -15,7 +16,7 @@ function utilisateursEchapper(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Utilisateurs</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
@@ -36,9 +37,55 @@ function utilisateursEchapper(string $value): string
                 <a class="button" href="index.php?route=utilisateurs/<?= (int) $utilisateur['id_util'] ?>/profil">
                     Voir le profil
                 </a>
+                <?php if ($currentUserId !== null && (int) $utilisateur['id_util'] !== (int) $currentUserId): ?>
+                    <?php if (!empty($utilisateur['is_following'])): ?>
+                        <form class="follow-form" method="post"
+                              action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/desabonner">
+                            <button type="submit">Se désabonner</button>
+                            <span class="follow-message" role="status"></span>
+                        </form>
+                    <?php else: ?>
+                        <form class="follow-form" method="post"
+                              action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/suivre">
+                            <button type="submit">Suivre</button>
+                            <span class="follow-message" role="status"></span>
+                        </form>
+                    <?php endif; ?>
+                <?php endif; ?>
             </article>
         <?php endforeach; ?>
     <?php endif; ?>
 </main>
+<script>
+document.querySelectorAll('.follow-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const button = form.querySelector('button');
+        const message = form.querySelector('.follow-message');
+        button.disabled = true;
+        fetch(form.action, {method: 'POST', headers: {'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Impossible de suivre cet utilisateur.');
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                const isUnfollow = form.action.includes('desabonner');
+                button.textContent = isUnfollow ? 'Suivre' : 'Se désabonner';
+                form.action = isUnfollow
+                    ? form.action.replace('/desabonner', '/suivre')
+                    : form.action.replace('/suivre', '/desabonner');
+                message.textContent = data.message;
+            })
+            .catch(function (error) {
+                button.disabled = false;
+                message.textContent = error.message;
+            });
+    });
+});
+</script>
 </body>
 </html>

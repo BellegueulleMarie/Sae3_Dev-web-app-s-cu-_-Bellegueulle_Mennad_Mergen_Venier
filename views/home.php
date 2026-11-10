@@ -12,6 +12,7 @@ function pageAccueil(string $message, array $touites): void
           '<a class="button" href="index.php?route=utilisateurs/' . (int) $userId .
             '/profil">Mon profil</a>' .
           '<a class="button" href="index.php?route=utilisateurs">Utilisateurs</a>' .
+          '<a class="button" href="index.php?route=tags">Gérer les tags</a>' .
           '<a class="button" href="index.php?route=deconnexion">Se déconnecter</a>'
         : '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
           '<a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>';
@@ -23,7 +24,7 @@ function pageAccueil(string $message, array $touites): void
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Touiteur.app</title>
-            <link rel="stylesheet" href="/CSS/utilisateur.css">
+            <link rel="stylesheet" href="CSS/utilisateur.css">
         </head>
         <body>
             <main>
@@ -39,6 +40,30 @@ HTML;
 
     echo <<<HTML
             </main>
+            <script>
+            document.querySelectorAll('.inline-tag-form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const button = form.querySelector('button');
+                    button.disabled = true;
+                    fetch(form.action, {method: 'POST', body: new FormData(form)})
+                        .then(function (response) {
+                            return response.json().then(function (data) {
+                                if (!response.ok) {
+                                    throw new Error(data.error || 'Abonnement impossible.');
+                                }
+                                return data;
+                            });
+                        })
+                        .then(function () {
+                            button.textContent = 'Abonné';
+                        })
+                        .catch(function () {
+                            button.disabled = false;
+                        });
+                });
+            });
+            </script>
         </body>
         </html>
 HTML;
@@ -76,7 +101,7 @@ function afficherTouite(array $touite): void
     $auteurHtml = $auteurId > 0
         ? '<a href="index.php?route=utilisateurs/' . $auteurId . '/profil">' . $auteur . '</a>'
         : $auteur;
-    $texte = nl2br(echapper((string) ($touite['texte'] ?? '')));
+    $texte = afficherTags((string) ($touite['texte'] ?? ''));
     $date = echapper((string) ($touite['date_touite'] ?? ''));
 
     echo <<<HTML
@@ -88,6 +113,24 @@ function afficherTouite(array $touite): void
             <small>$date</small>
         </article>
 HTML;
+}
+
+function afficherTags(string $texte): string
+{
+    $texte = echapper($texte);
+    $texte = preg_replace_callback(
+        '/#([\p{L}\p{N}_-]+)/u',
+        static function (array $match): string {
+            $nom = $match[1];
+            return '<form class="inline-tag-form" method="post" action="index.php?route=api/tags/abonner">' .
+                '<input type="hidden" name="nom" value="' . echapper($nom) . '">' .
+                '<button type="submit" class="hashtag">#' . echapper($nom) . '</button>' .
+                '</form>';
+        },
+        $texte
+    ) ?? $texte;
+
+    return nl2br($texte);
 }
 
 function echapper(string $valeur): string

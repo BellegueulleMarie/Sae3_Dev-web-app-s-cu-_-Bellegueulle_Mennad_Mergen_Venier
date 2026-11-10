@@ -29,6 +29,8 @@ final class UtilisateurProfileAction implements ActionInterface
             : (int) $sessionId;
         $utilisateur = $this->repository->find($id);
         $touites = $this->touiteRepository->byAuthor($id);
+        $isFollowing = $id !== (int) $sessionId &&
+            $this->repository->isFollowing((int) $sessionId, $id);
 
         if ($utilisateur !== null) {
             $utilisateur['followers_count'] = $this->repository->followerCount((int) $id);

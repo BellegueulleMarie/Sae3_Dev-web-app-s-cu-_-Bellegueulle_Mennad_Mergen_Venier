@@ -15,7 +15,7 @@ function profilEchapper(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Profil utilisateur</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
@@ -27,6 +27,19 @@ function profilEchapper(string $value): string
         <p><strong>Email :</strong> <?= profilEchapper((string) $utilisateur['email']) ?></p>
         <p><strong>Nombre de touites :</strong> <?= (int) $utilisateur['nb_touites'] ?></p>
         <p><strong>Nombre de suiveurs :</strong> <?= (int) $utilisateur['followers_count'] ?></p>
+        <?php if ((int) $utilisateur['id_util'] !== (int) ($_SESSION['user_id'] ?? 0)): ?>
+            <?php if (!empty($isFollowing)): ?>
+                <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/desabonner">
+                    <button type="submit">Se désabonner</button>
+                    <span role="status"></span>
+                </form>
+            <?php else: ?>
+                <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/suivre">
+                    <button type="submit">Suivre</button>
+                    <span role="status"></span>
+                </form>
+            <?php endif; ?>
+        <?php endif; ?>
         <h2>Touites de <?= profilEchapper((string) $utilisateur['nom']) ?></h2>
         <?php if (($touites ?? []) === []): ?>
             <p>Cet utilisateur n’a publié aucune touite.</p>
@@ -44,5 +57,34 @@ function profilEchapper(string $value): string
         <a class="button" href="index.php">Accueil</a>
     </p>
 </main>
+<script>
+document.querySelectorAll('.follow-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const button = form.querySelector('button');
+        const status = form.querySelector('[role="status"]');
+        button.disabled = true;
+        fetch(form.action, {method: 'POST', headers: {'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) throw new Error(data.error || 'Impossible de suivre cet utilisateur.');
+                    return data;
+                });
+            })
+            .then(function (data) {
+                const isUnfollow = form.action.includes('desabonner');
+                button.textContent = isUnfollow ? 'Suivre' : 'Se désabonner';
+                form.action = isUnfollow
+                    ? form.action.replace('/desabonner', '/suivre')
+                    : form.action.replace('/suivre', '/desabonner');
+                status.textContent = data.message;
+            })
+            .catch(function (error) {
+                button.disabled = false;
+                status.textContent = error.message;
+            });
+    });
+});
+</script>
 </body>
 </html>

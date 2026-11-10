@@ -8,6 +8,7 @@ use App\Http\Dispatcher;
 use App\Database\Connection;
 use App\Repository\TouiteRepository;
 use App\Repository\UtilisateurRepository;
+use App\Repository\TagRepository;
 use App\Action\UtilisateurCreateAction;
 use App\Action\HomeAction;
 use App\Action\UtilisateurListAction;
@@ -21,6 +22,8 @@ use App\Action\UtilisateurProfileAction;
 use App\Action\UtilisateurPageAction;
 use App\Action\UtilisateurLoginAction;
 use App\Action\UtilisateurLogoutAction;
+use App\Action\TagPageAction;
+use App\Action\TagSubscribeAction;
 use RuntimeException;
 use Throwable;
 
@@ -40,13 +43,18 @@ final class Application
             $database = Connection::create($config['database']);
             $repository = UtilisateurRepository::getInstance($database);
             $touiteRepository = TouiteRepository::getInstance($database);
+            $tagRepository = TagRepository::getInstance($database);
             $dispatcher->get('/', [new HomeAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites/nouveau', [new TouitePublishAction($touiteRepository), 'execute']);
             $dispatcher->post('/touites/publier', [new TouitePublishAction($touiteRepository), 'execute']);
-            $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository), 'execute']);
+            $dispatcher->get('/touites/{id}', [new TouiteShowAction($touiteRepository, $repository), 'execute']);
             $dispatcher->get('/utilisateurs/{id}/profil', [new UtilisateurProfileAction($repository, $touiteRepository), 'execute']);
             $dispatcher->get('/utilisateurs', [new UtilisateurPageAction($repository), 'execute']);
+            $dispatcher->get('/tags', [new TagPageAction($tagRepository), 'execute']);
+            $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
+            $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
+            $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->get('/connexion', [new UtilisateurLoginAction($repository), 'execute']);
             $dispatcher->post('/connexion', [new UtilisateurLoginAction($repository), 'execute']);
             $dispatcher->get('/deconnexion', [new UtilisateurLogoutAction(), 'execute']);
@@ -55,6 +63,7 @@ final class Application
             $dispatcher->post('/api/utilisateurs', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs/{id}/modifier', [new UtilisateurUpdateAction($repository), 'execute']);
             $dispatcher->post('/api/utilisateurs/{id}/suivre', [new UtilisateurFollowAction($repository), 'execute']);
+            $dispatcher->post('/api/utilisateurs/{id}/desabonner', [new UtilisateurFollowAction($repository), 'execute']);
             $dispatcher->get('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
         } else {

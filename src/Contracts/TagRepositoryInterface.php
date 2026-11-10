@@ -14,5 +14,13 @@ interface TagRepositoryInterface
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array;
 
-    public function create(int $id, string $libelle, string $description): void;
+    /** @return array<string, mixed>|null */
+    public function findByName(string $name): ?array;
+
+    public function isSubscribed(int $userId, int $tagId): bool;
+
+    public function subscribe(int $userId, int $tagId): void;
+
+    public function unsubscribe(int $userId, int $tagId): void;
+
 }

@@ -18,6 +18,8 @@ interface UtilisateurRepositoryInterface
 
     public function follow(int $followerId, int $followedId): void;
 
+    public function unfollow(int $followerId, int $followedId): void;
+
     public function isFollowing(int $followerId, int $followedId): bool;
 
     public function followerCount(int $userId): int;
@@ -25,4 +27,5 @@ interface UtilisateurRepositoryInterface
     public function create(string $nom, string $prenom, string $email): void;
 
     public function update(int $id, string $nom, string $prenom, string $email): void;
+
 }

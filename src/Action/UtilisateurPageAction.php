@@ -22,6 +22,14 @@ final class UtilisateurPageAction implements ActionInterface
         }
 
         $utilisateurs = $this->repository->all();
+        foreach ($utilisateurs as &$utilisateur) {
+            $utilisateur['is_following'] = $this->repository->isFollowing(
+                (int) $userId,
+                (int) $utilisateur['id_util']
+            );
+        }
+        unset($utilisateur);
+        $currentUserId = (int) $userId;
         require dirname(__DIR__, 2) . '/views/utilisateurs.php';
     }
 }
