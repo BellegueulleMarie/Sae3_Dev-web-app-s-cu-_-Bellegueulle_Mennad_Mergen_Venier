@@ -9,6 +9,8 @@ function e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
+
+$authorQuery = $authorId === null ? '' : '&amp;author=' . $authorId;
 ?>
 <!doctype html>
 <html lang="fr">
@@ -19,8 +21,11 @@ function e(string $value): string
 </head>
 <body>
 <main>
-    <h1>Les derniers touites</h1>
+    <h1><?= $authorId === null ? 'Les derniers touites' : 'Les touites de cet auteur' ?></h1>
     <p><a class="button" href="index.php">Accueil</a></p>
+    <?php if ($authorId !== null): ?>
+        <p><a class="button" href="index.php?route=touites">Voir tous les touites</a></p>
+    <?php endif; ?>
     <p>
         <a class="button" href="index.php?route=touites/nouveau">
             Écrire un touite
@@ -32,7 +37,7 @@ function e(string $value): string
         <?php foreach ($touites as $touite): ?>
             <article>
                 <h2>
-                    <a href="index.php?route=utilisateurs/<?= (int) $touite['id_auteur'] ?>/profil">
+                    <a href="index.php?route=touites&amp;author=<?= (int) $touite['id_auteur'] ?>">
                         <?= e((string) $touite['auteur']) ?>
                     </a>
                 </h2>
@@ -52,13 +57,13 @@ function e(string $value): string
     <?php if ($totalPages > 1): ?>
         <nav class="pagination">
             <?php if ($page > 1): ?>
-                <a class="button" href="index.php?route=touites&page=<?= $page - 1 ?>">Page précédente</a>
+                <a class="button" href="index.php?route=touites&amp;page=<?= $page - 1 ?><?= $authorQuery ?>">Page précédente</a>
             <?php endif; ?>
 
             <span>Page <?= $page ?> sur <?= $totalPages ?></span>
 
             <?php if ($page < $totalPages): ?>
-                <a class="button" href="index.php?route=touites&page=<?= $page + 1 ?>">Page suivante</a>
+                <a class="button" href="index.php?route=touites&amp;page=<?= $page + 1 ?><?= $authorQuery ?>">Page suivante</a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

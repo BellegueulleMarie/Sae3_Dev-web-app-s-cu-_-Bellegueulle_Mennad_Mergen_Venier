@@ -22,9 +22,8 @@ interface TouiteRepositoryInterface
 
     public function create(string $texte, int $auteurId, ?int $idImg = null): int;
 
-    public function count(): int;
+    public function count(?int $authorId = null): int;
 
     /** @return list<array<string, mixed>> */
-    public function paginate(int $page, int $perPage = 10): array;
-
+    public function paginate(int $page, int $perPage = 10, ?int $authorId = null): array;
 }

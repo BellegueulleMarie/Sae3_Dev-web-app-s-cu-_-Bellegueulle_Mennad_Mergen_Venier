@@ -167,16 +167,28 @@ final class TouiteRepository implements TouiteRepositoryInterface
             }
 
 
-        public function count(): int
+        public function count(?int $authorId = null): int
         {
-            $result = $this->db->query('SELECT COUNT(*) FROM touites')->fetchColumn();
+            $sql = 'SELECT COUNT(*) FROM touites';
+            if ($authorId !== null) {
+                $sql .= ' WHERE auteur_id = :author_id';
+            }
+
+            $request = $this->db->prepare($sql);
+            if ($authorId !== null) {
+                $request->bindValue(':author_id', $authorId, PDO::PARAM_INT);
+            }
+            $request->execute();
+
+            $result = $request->fetchColumn();
             return (int) $result;
         }
 
         /** @return list<array<string, mixed>> */
-        public function paginate(int $page, int $perPage = 10): array
+        public function paginate(int $page, int $perPage = 10, ?int $authorId = null): array
         {
             $offset = ($page - 1) * $perPage;
+            $authorFilter = $authorId === null ? '' : 'WHERE t.auteur_id = :author_id';
 
             $request = $this->db->prepare(
                 'SELECT t.id AS id_touite, t.texte,
@@ -187,11 +199,15 @@ final class TouiteRepository implements TouiteRepositoryInterface
                  FROM touites t
                  JOIN utilisateurs u ON u.id = t.auteur_id
                  LEFT JOIN likes l ON l.touite_id = t.id
+                 ' . $authorFilter . '
                  GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
                           t.image, u.nom_utilisateur
                  ORDER BY t.date_publication DESC, t.id DESC
                  LIMIT :limit OFFSET :offset'
             );
+            if ($authorId !== null) {
+                $request->bindValue(':author_id', $authorId, PDO::PARAM_INT);
+            }
             $request->bindValue(':limit', $perPage, PDO::PARAM_INT);
             $request->bindValue(':offset', $offset, PDO::PARAM_INT);
             $request->execute();
