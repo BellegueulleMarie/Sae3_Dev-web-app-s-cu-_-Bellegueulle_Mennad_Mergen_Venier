@@ -45,6 +45,29 @@ final class TagRepository implements TagRepositoryInterface
         return $tag === false ? null : $tag;
     }
 
+    /** @return list<array<string, mixed>> */
+    public function statistics(): array
+    {
+        return $this->db->query(
+            'SELECT t.id, t.nom,
+                    COUNT(DISTINCT tt.touite_id) AS nombre_touites,
+                    COUNT(l.utilisateur_id) AS total_likes,
+                    COALESCE(
+                        ROUND(
+                            COUNT(l.utilisateur_id) /
+                            NULLIF(COUNT(DISTINCT tt.touite_id), 0),
+                            2
+                        ),
+                        0
+                    ) AS moyenne_likes
+             FROM tags t
+             LEFT JOIN touite_tags tt ON tt.tag_id = t.id
+             LEFT JOIN likes l ON l.touite_id = tt.touite_id
+             GROUP BY t.id, t.nom
+             ORDER BY total_likes DESC, nombre_touites DESC, t.nom ASC'
+        )->fetchAll();
+    }
+
     public function isSubscribed(int $userId, int $tagId): bool
     {
         $request = $this->db->prepare(

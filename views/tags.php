@@ -20,7 +20,10 @@ function tagsEchapper(string $value): string
 <body>
 <main>
     <h1>Tags</h1>
-    <p><a class="button" href="index.php">Accueil</a></p>
+    <p>
+        <a class="button" href="index.php">Accueil</a>
+        <a class="button" href="index.php?route=statistiques">Statistiques</a>
+    </p>
     <?php if ($tags === []): ?>
         <p>Aucun tag disponible.</p>
     <?php else: ?>

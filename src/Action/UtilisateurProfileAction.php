@@ -32,8 +32,13 @@ final class UtilisateurProfileAction implements ActionInterface
         $isFollowing = $id !== (int) $sessionId &&
             $this->repository->isFollowing((int) $sessionId, $id);
 
+        $followers = [];
+        $scoreMoyen = 0.0;
+
         if ($utilisateur !== null) {
-            $utilisateur['followers_count'] = $this->repository->followerCount((int) $id);
+            $followers = $this->repository->followers((int) $id);
+            $scoreMoyen = $this->touiteRepository->averageScore((int) $id);
+            $utilisateur['followers_count'] = count($followers);
         } else {
             http_response_code(404);
         }

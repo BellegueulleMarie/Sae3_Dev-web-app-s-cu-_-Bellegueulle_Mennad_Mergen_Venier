@@ -13,6 +13,7 @@ function pageAccueil(string $message, array $touites): void
             '/profil">Mon profil</a>' .
           '<a class="button" href="index.php?route=utilisateurs">Utilisateurs</a>' .
           '<a class="button" href="index.php?route=tags">Gérer les tags</a>' .
+          '<a class="button" href="index.php?route=statistiques">Statistiques</a>' .
           '<a class="button" href="index.php?route=deconnexion">Se déconnecter</a>'
         : '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
           '<a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>';

@@ -100,6 +100,21 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         return (int) $statement->fetchColumn();
     }
 
+    /** @return list<array<string, mixed>> */
+    public function followers(int $userId): array
+    {
+        $statement = $this->db->prepare(
+            'SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email
+             FROM utilisateurs u
+             JOIN suivis s ON s.suiveur_id = u.id
+             WHERE s.suivi_id = :user_id
+             ORDER BY u.nom_utilisateur ASC'
+        );
+        $statement->execute(['user_id' => $userId]);
+
+        return $statement->fetchAll();
+    }
+
     public function create(string $nom, string $prenom, string $email): void
     {
         $statement = $this->db->prepare(

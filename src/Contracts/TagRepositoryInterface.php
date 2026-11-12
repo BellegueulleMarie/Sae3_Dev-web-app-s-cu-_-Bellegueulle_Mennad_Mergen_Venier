@@ -17,6 +17,9 @@ interface TagRepositoryInterface
     /** @return array<string, mixed>|null */
     public function findByName(string $name): ?array;
 
+    /** @return list<array<string, mixed>> */
+    public function statistics(): array;
+
     public function isSubscribed(int $userId, int $tagId): bool;
 
     public function subscribe(int $userId, int $tagId): void;

@@ -24,6 +24,7 @@ use App\Action\UtilisateurLoginAction;
 use App\Action\UtilisateurLogoutAction;
 use App\Action\TagPageAction;
 use App\Action\TagSubscribeAction;
+use App\Action\StatisticsAction;
 use RuntimeException;
 use Throwable;
 
@@ -52,6 +53,7 @@ final class Application
             $dispatcher->get('/utilisateurs/{id}/profil', [new UtilisateurProfileAction($repository, $touiteRepository), 'execute']);
             $dispatcher->get('/utilisateurs', [new UtilisateurPageAction($repository), 'execute']);
             $dispatcher->get('/tags', [new TagPageAction($tagRepository), 'execute']);
+            $dispatcher->get('/statistiques', [new StatisticsAction($tagRepository, $touiteRepository, $repository), 'execute']);
             $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
@@ -81,6 +83,7 @@ final class Application
             $dispatcher->get('/touites/{id}', $databaseUnavailable);
             $dispatcher->get('/utilisateurs/{id}/profil', $databaseUnavailable);
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
+            $dispatcher->get('/statistiques', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);
             $dispatcher->post('/connexion', $databaseUnavailable);
             $dispatcher->get('/deconnexion', [new UtilisateurLogoutAction(), 'execute']);

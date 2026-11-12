@@ -24,6 +24,8 @@ interface TouiteRepositoryInterface
 
     public function count(?int $authorId = null): int;
 
+    public function averageScore(int $authorId): float;
+
     /** @return list<array<string, mixed>> */
     public function paginate(int $page, int $perPage = 10, ?int $authorId = null): array;
 }

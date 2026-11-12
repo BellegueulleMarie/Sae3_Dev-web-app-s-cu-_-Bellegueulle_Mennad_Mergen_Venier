@@ -184,6 +184,24 @@ final class TouiteRepository implements TouiteRepositoryInterface
             return (int) $result;
         }
 
+        public function averageScore(int $authorId): float
+        {
+            $statement = $this->db->prepare(
+                'SELECT COUNT(l.utilisateur_id) AS total_likes, COUNT(DISTINCT t.id) AS total_touites
+                 FROM touites t
+                 LEFT JOIN likes l ON l.touite_id = t.id
+                 WHERE t.auteur_id = :author_id'
+            );
+            $statement->execute(['author_id' => $authorId]);
+            $row = $statement->fetch();
+
+            if (!$row || (int) $row['total_touites'] === 0) {
+                return 0.0;
+            }
+
+            return round((int) $row['total_likes'] / (int) $row['total_touites'], 2);
+        }
+
         /** @return list<array<string, mixed>> */
         public function paginate(int $page, int $perPage = 10, ?int $authorId = null): array
         {
