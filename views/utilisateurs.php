@@ -16,7 +16,7 @@ function utilisateursEchapper(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Utilisateurs</title>
-    <link rel="stylesheet" href="CSS/utilisateur.css">
+    <link rel="stylesheet" href="/CSS/utilisateur.css">
 </head>
 <body>
 <main>

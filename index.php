@@ -7,6 +7,12 @@ use App\Application;
 require __DIR__ . '/vendor/autoload.php';
 
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+if (PHP_SAPI === 'cli-server' &&
+    str_starts_with($requestPath, '/CSS/') &&
+    is_file(__DIR__ . $requestPath)) {
+    return false;
+}
+
 $scriptPath = parse_url($_SERVER['SCRIPT_NAME'] ?? '', PHP_URL_PATH) ?: '';
 $basePath = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/.');
 

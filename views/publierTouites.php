@@ -8,7 +8,7 @@ declare(strict_types=1);
 <head>
     <meta charset="utf-8">
     <title>Publier un touite</title>
-    <link rel="stylesheet" href="CSS/utilisateur.css">
+    <link rel="stylesheet" href="/CSS/utilisateur.css">
 </head>
 
 <body>

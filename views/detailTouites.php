@@ -21,7 +21,7 @@ function lierTags(string $texte): string
 <head>
     <meta charset="utf-8">
     <title>Détail du touite</title>
-    <link rel="stylesheet" href="CSS/utilisateur.css">
+    <link rel="stylesheet" href="/CSS/utilisateur.css">
 </head>
 <body>
 <main>

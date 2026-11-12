@@ -16,7 +16,7 @@ function pageUtilisateur(string $error, string $success, array $values): void
         <head>
             <meta charset="utf-8">
             <title>Créer un utilisateur</title>
-            <link rel="stylesheet" href="CSS/utilisateur.css">
+            <link rel="stylesheet" href="/CSS/utilisateur.css">
         </head>
         <body>
             <h1>Créer un utilisateur</h1>

@@ -20,7 +20,7 @@ function tagsEchapper(string $value): string
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $tagSelectionne !== null ? '#' . tagsEchapper((string) $tagSelectionne['nom']) . ' - Touiteur' : 'Tags' ?></title>
-    <link rel="stylesheet" href="CSS/utilisateur.css">
+    <link rel="stylesheet" href="/CSS/utilisateur.css">
 </head>
 <body>
 <main>
