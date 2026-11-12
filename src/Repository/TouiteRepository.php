@@ -24,14 +24,14 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $this->db->query(
             'SELECT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
-                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
                     COUNT(l.utilisateur_id) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
              GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
-                      t.image, u.nom_utilisateur
+                      u.nom_utilisateur
              ORDER BY date_publication DESC'
         )->fetchAll();
     }
@@ -64,7 +64,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
         $request = $this->db->prepare(
             'SELECT DISTINCT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
-                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
                     COUNT(l.utilisateur_id) AS nombre_likes
              FROM touites t
@@ -84,7 +84,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                    AND tt.touite_id = t.id
              )
              GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
-                      t.image, u.nom_utilisateur
+                      u.nom_utilisateur
              ORDER BY t.date_publication DESC, t.id DESC'
         );
         $request->execute([
@@ -101,7 +101,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
         $request = $this->db->prepare(
             'SELECT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
-                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
                     COUNT(l.utilisateur_id) AS nombre_likes
              FROM touites t
@@ -109,7 +109,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
              LEFT JOIN likes l ON l.touite_id = t.id
              WHERE t.auteur_id = :author_id
              GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
-                      t.image, u.nom_utilisateur
+                      u.nom_utilisateur
              ORDER BY t.date_publication DESC, t.id DESC'
         );
         $request->execute(['author_id' => $authorId]);
@@ -123,7 +123,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
         $request = $this->db->prepare(
             'SELECT t.id AS id_touite, t.texte,
                     t.date_publication AS date_touite,
-                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
                     COUNT(l.utilisateur_id) AS nombre_likes
              FROM touites t
@@ -132,7 +132,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
              LEFT JOIN likes l ON l.touite_id = t.id
              WHERE tt.tag_id = :tag_id
              GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
-                      t.image, u.nom_utilisateur
+                      u.nom_utilisateur
              ORDER BY t.date_publication DESC, t.id DESC'
         );
         $request->execute(['tag_id' => $tagId]);
@@ -140,7 +140,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $request->fetchAll();
     }
 
-    public function create(string $texte, int $auteurId, ?int $idImg = null): int
+    public function create(string $texte, int $auteurId, ?string $idImg = null): int
     {
         $this->db->beginTransaction();
         try {
@@ -234,7 +234,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
             $request = $this->db->prepare(
                 'SELECT t.id AS id_touite, t.texte,
                         t.date_publication AS date_touite,
-                        t.auteur_id AS id_auteur, t.image AS id_img,
+                        t.auteur_id AS id_auteur,
                         u.nom_utilisateur AS auteur,
                         COUNT(l.utilisateur_id) AS nombre_likes
                  FROM touites t
@@ -242,7 +242,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                  LEFT JOIN likes l ON l.touite_id = t.id
                  ' . $authorFilter . '
                  GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
-                          t.image, u.nom_utilisateur
+                          u.nom_utilisateur
                  ORDER BY t.date_publication DESC, t.id DESC
                  LIMIT :limit OFFSET :offset'
             );
