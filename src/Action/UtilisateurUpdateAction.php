@@ -9,23 +9,48 @@ use App\Contracts\UtilisateurRepositoryInterface;
 use InvalidArgumentException;
 use Throwable;
 
+/**
+ * Classe UtilisateurUpdateAction
+ *
+ * Met à jour les informations d'un utilisateur via une requête POST AJAX.
+ * Retourne une réponse JSON.
+ *
+ * Route : POST /api/utilisateurs/{id}/modifier
+ *
+ * Codes HTTP :
+ * - 200 : modification réussie
+ * - 400 : données invalides (champs vides, e-mail malformé…)
+ * - 500 : erreur serveur inattendue
+ */
 final class UtilisateurUpdateAction implements ActionInterface
 {
+    /**
+     * Constructeur.
+     *
+     * @param UtilisateurRepositoryInterface $repository Accès aux données utilisateurs
+     */
     public function __construct(private readonly UtilisateurRepositoryInterface $repository) {}
 
+    /**
+     * Valide les données et met à jour l'utilisateur en base.
+     *
+     * @param array<string, string> $parameters Paramètres de l'URL (['id' => '<user_id>'])
+     */
     public function execute(array $parameters = []): void
     {
         header('Content-Type: application/json; charset=utf-8');
         try {
-            $id = filter_var($parameters['id'] ?? null, FILTER_VALIDATE_INT);
-            $data = $_POST;
-            $nom = trim(filter_var((string) ($data['nom'] ?? ''), FILTER_SANITIZE_SPECIAL_CHARS));
+            $id     = filter_var($parameters['id'] ?? null, FILTER_VALIDATE_INT);
+            $data   = $_POST;
+            $nom    = trim(filter_var((string) ($data['nom'] ?? ''), FILTER_SANITIZE_SPECIAL_CHARS));
             $prenom = trim(filter_var((string) ($data['prenom'] ?? ''), FILTER_SANITIZE_SPECIAL_CHARS));
-            $email = trim(filter_var((string) ($data['email'] ?? ''), FILTER_SANITIZE_SPECIAL_CHARS));
+            $email  = trim(filter_var((string) ($data['email'] ?? ''), FILTER_SANITIZE_SPECIAL_CHARS));
+
             if ($id === false || $id < 1 || $nom === '' || $prenom === '' ||
                 !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new InvalidArgumentException('Les donnees utilisateur sont invalides.');
             }
+
             $this->repository->update($id, $nom, $prenom, $email);
             echo json_encode(['message' => 'Utilisateur modifie.']);
         } catch (InvalidArgumentException $exception) {

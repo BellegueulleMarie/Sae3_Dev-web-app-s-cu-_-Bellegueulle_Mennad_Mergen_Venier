@@ -33,9 +33,20 @@ use Throwable;
 use App\Action\TouiteEvaluateAction;
 use App\Action\AdminFollowersAction;
 
+/**
+ * Classe Application
+ *
+ * Point d'entrée central et configurateur de l'application Touiteur.
+ * Initialise l'environnement, configure la gestion d'erreurs, démarre la session,
+ * instancie les dépendances (repositories, connexion BDD) et enregistre toutes les routes dans le Dispatcher.
+ */
 final class Application
 {
-    /** @return array{config: array<string, mixed>, dispatcher: Dispatcher} */
+    /**
+     * Initialise l'application et retourne sa configuration ainsi que le dispatcher prêt à l'emploi.
+     *
+     * @return array{config: array<string, mixed>, dispatcher: Dispatcher}
+     */
     public static function create(): array
     {
         $root = dirname(__DIR__);
@@ -63,9 +74,9 @@ final class Application
             $dispatcher->get('/tags', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/tags/{id}', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/statistiques', [new StatisticsAction($tagRepository, $touiteRepository, $repository), 'execute']);
+            $dispatcher->get('/administration/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
             $dispatcher->get('/influenceurs', [new InfluencerAction($repository), 'execute']);
             $dispatcher->get('/tendances', [new TrendAction($tagRepository), 'execute']);
-            $dispatcher->get('/administration/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
             $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
@@ -98,9 +109,9 @@ final class Application
             $dispatcher->get('/utilisateurs/{id}/profil', $databaseUnavailable);
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/statistiques', $databaseUnavailable);
+            $dispatcher->get('/administration/utilisateurs-suivis', $databaseUnavailable);
             $dispatcher->get('/influenceurs', $databaseUnavailable);
             $dispatcher->get('/tendances', $databaseUnavailable);
-            $dispatcher->get('/administration/utilisateurs-suivis', $databaseUnavailable);
             $dispatcher->get('/tags/{id}', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);
             $dispatcher->post('/connexion', $databaseUnavailable);
@@ -110,6 +121,11 @@ final class Application
         return ['config' => $config, 'dispatcher' => $dispatcher];
     }
 
+    /**
+     * Charge les variables d'environnement depuis un fichier .env s'il existe.
+     *
+     * @param string $path Chemin absolu vers le fichier .env
+     */
     private static function loadEnvironment(string $path): void
     {
         if (!is_file($path)) {
@@ -131,6 +147,11 @@ final class Application
         }
     }
 
+    /**
+     * Configure l'affichage des erreurs PHP et le gestionnaire d'exceptions global.
+     *
+     * @param bool $debug Indique si le mode débogage est actif
+     */
     private static function configureErrors(bool $debug): void
     {
         ini_set('display_errors', $debug ? '1' : '0');
@@ -149,6 +170,12 @@ final class Application
         });
     }
 
+    /**
+     * Démarre la session PHP avec le nom spécifié.
+     *
+     * @param string $name Nom de session
+     * @throws RuntimeException Si le nom de session est vide
+     */
     private static function startSession(string $name): void
     {
         if ($name === '') {
