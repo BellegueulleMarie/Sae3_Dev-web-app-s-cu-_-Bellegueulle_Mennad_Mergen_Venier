@@ -24,6 +24,9 @@ interface UtilisateurRepositoryInterface
 
     public function followerCount(int $userId): int;
 
+    /** @return list<array<string, mixed>> */
+    public function followers(int $userId): array;
+
     public function create(string $nom, string $prenom, string $email): void;
 
     public function update(int $id, string $nom, string $prenom, string $email): void;

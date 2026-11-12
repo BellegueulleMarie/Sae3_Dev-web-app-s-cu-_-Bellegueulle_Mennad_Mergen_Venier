@@ -189,6 +189,31 @@ article small {
     font-size: .9rem;
 }
 
+.statistics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.statistics-table caption {
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.statistics-table th,
+.statistics-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.statistics-table tbody tr:last-child th,
+.statistics-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
 .follow-form,
 .tag-subscribe-form {
     display: inline-flex;
@@ -267,6 +292,44 @@ article small {
     background: #fde8e6;
     border: 1px solid #f4b8b2;
     border-radius: 8px;
+}
+
+.stat-box {
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.wall-tag-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    width: auto !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.wall-tag-form input {
+    width: auto;
+    flex: 1 1 200px;
+    margin-top: 0;
+}
+
+.wall-tag-form button {
+    flex: 0 0 auto;
+}
+
+.wall-tag-status {
+    width: 100%;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
 }
 
 @media (max-width: 600px) {

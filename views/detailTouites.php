@@ -9,6 +9,12 @@ function esc(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
+
+function lierTags(string $texte): string
+{
+    $texte = esc($texte);
+    return preg_replace('/#([\p{L}\p{N}_-]+)/u', '<a class="hashtag" href="index.php?route=tags&amp;nom=$1">#$1</a>', $texte) ?? $texte;
+}
 ?>
 <!doctype html>
 <html lang="fr">
@@ -28,7 +34,7 @@ function esc(string $value): string
                 <?= esc((string) $touite['auteur']) ?>
             </a>
         </h1>
-        <p><?= nl2br(esc((string) $touite['texte'])) ?></p>
+        <p><?= nl2br(lierTags((string) $touite['texte'])) ?></p>
         <p><small><?= esc((string) $touite['date_touite']) ?></small></p>
         <div class="vote-container">
             <?php if (($currentUserId ?? false) !== false && ($currentUserId ?? 0) > 0): ?>

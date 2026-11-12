@@ -26,7 +26,8 @@ function profilEchapper(string $value): string
         <p><strong>ID sélectionné :</strong> <?= (int) $utilisateur['id_util'] ?></p>
         <p><strong>Email :</strong> <?= profilEchapper((string) $utilisateur['email']) ?></p>
         <p><strong>Nombre de touites :</strong> <?= (int) $utilisateur['nb_touites'] ?></p>
-        <p><strong>Nombre de suiveurs :</strong> <?= (int) $utilisateur['followers_count'] ?></p>
+        <p><strong>Nombre de suiveurs :</strong> <?= count($followers ?? []) ?></p>
+        <p><strong>Score moyen des touites :</strong> <?= number_format((float) ($scoreMoyen ?? 0.0), 2, ',', ' ') ?></p>
         <?php if ((int) $utilisateur['id_util'] !== (int) ($_SESSION['user_id'] ?? 0)): ?>
             <?php if (!empty($isFollowing)): ?>
                 <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $utilisateur['id_util'] ?>/desabonner">
@@ -39,6 +40,21 @@ function profilEchapper(string $value): string
                     <span role="status"></span>
                 </form>
             <?php endif; ?>
+        <?php endif; ?>
+
+        <h2>Utilisateurs qui le suivent</h2>
+        <?php if (($followers ?? []) === []): ?>
+            <p>Aucun utilisateur ne suit cette personne pour l’instant.</p>
+        <?php else: ?>
+            <ul>
+                <?php foreach ($followers as $follower): ?>
+                    <li>
+                        <a href="index.php?route=utilisateurs/<?= (int) $follower['id_util'] ?>/profil">
+                            <?= profilEchapper((string) $follower['nom']) ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
         <?php endif; ?>
         <h2>Touites de <?= profilEchapper((string) $utilisateur['nom']) ?></h2>
         <?php if (($touites ?? []) === []): ?>
@@ -54,6 +70,7 @@ function profilEchapper(string $value): string
     <?php endif; ?>
     <p>
         <a class="button" href="index.php?route=touites">Voir les touites</a>
+        <a class="button" href="index.php?route=statistiques">Statistiques</a>
         <a class="button" href="index.php">Accueil</a>
     </p>
 </main>
