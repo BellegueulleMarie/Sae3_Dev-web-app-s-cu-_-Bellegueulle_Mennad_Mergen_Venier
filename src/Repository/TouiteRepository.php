@@ -218,8 +218,8 @@ final class TouiteRepository implements TouiteRepositoryInterface
         public function evaluatePositive(int $userId, int $touiteId): bool
         {
             $request = $this->db->prepare(
-                'INSERT IGNORE INTO evaluations (utilisateur_id, touite_id, valeur)
-                 VALUES (:user_id, :touite_id, 1)'
+                'INSERT IGNORE INTO likes (utilisateur_id, touite_id)
+                 VALUES (:user_id, :touite_id)'
             );
 
             $request->execute([
@@ -234,7 +234,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
         {
             $request = $this->db->prepare(
                 'SELECT COUNT(*)
-                 FROM evaluations
+                 FROM likes
                  WHERE utilisateur_id = :user_id
                  AND touite_id = :touite_id'
             );
@@ -250,13 +250,13 @@ final class TouiteRepository implements TouiteRepositoryInterface
         public function getScore(int $touiteId): int
         {
             $request = $this->db->prepare(
-                'SELECT COALESCE(SUM(valeur), 0)
-                 FROM evaluations
+                'SELECT COUNT(*)
+                 FROM likes
                  WHERE touite_id = :touite_id'
             );
 
             $request->execute(['touite_id' => $touiteId]);
 
             return (int) $request->fetchColumn();
-    ²    }
-}
+        }
+    }

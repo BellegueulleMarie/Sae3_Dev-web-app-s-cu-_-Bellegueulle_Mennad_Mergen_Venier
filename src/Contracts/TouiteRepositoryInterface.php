@@ -29,7 +29,7 @@ interface TouiteRepositoryInterface
 
     public function evaluatePositive(int $userId, int $touiteId): bool;
 
-    public function hasEvaluate(int $userId, int $touiteId): bool;
+    public function hasEvaluated(int $userId, int $touiteId): bool;
 
     public function getScore(int $touiteId): int;
 }
