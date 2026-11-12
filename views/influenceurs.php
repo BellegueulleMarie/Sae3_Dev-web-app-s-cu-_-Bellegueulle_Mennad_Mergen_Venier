@@ -6,7 +6,7 @@ declare(strict_types=1);
 $influenceurs = $influenceurs ?? [];
 
 /** @var string $tri */
-$tri = $tri ?? 'ASC';
+$tri = $tri ?? 'DESC';
 
 $currentUserId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
 
@@ -32,16 +32,16 @@ function influenceursEchapper(string $value): string
     </nav>
 
     <h1>Les Influenceurs</h1>
-    <p>Liste des utilisateurs les plus suivis sur Touiteur (ordonnée par nombre de suiveurs).</p>
+    <p>Liste des utilisateurs les plus suivis sur Touiteur (du plus suivi au moins suivi).</p>
 
     <div style="margin-bottom: 20px;">
         <strong>Tri : </strong>
-        <?php if ($tri === 'ASC'): ?>
-            <span>Ordre croissant (spécification SAE)</span> |
-            <a href="index.php?route=influenceurs&amp;tri=DESC">Passer en ordre décroissant</a>
+        <?php if ($tri === 'DESC'): ?>
+            <span>Du plus suivi au moins suivi (par défaut)</span> |
+            <a href="index.php?route=influenceurs&amp;tri=ASC">Passer en ordre croissant</a>
         <?php else: ?>
-            <a href="index.php?route=influenceurs&amp;tri=ASC">Passer en ordre croissant (spécification SAE)</a> |
-            <span>Ordre décroissant</span>
+            <a href="index.php?route=influenceurs&amp;tri=DESC">Revenir à l'ordre par défaut</a> |
+            <span>Du moins suivi au plus suivi</span>
         <?php endif; ?>
     </div>
 

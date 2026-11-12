@@ -35,5 +35,5 @@ interface UtilisateurRepositoryInterface
     public function update(int $id, string $nom, string $prenom, string $email): void;
 
     /** @return list<array<string, mixed>> */
-    public function influencers(string $order = 'ASC'): array;
+    public function influencers(string $order = 'DESC'): array;
 }

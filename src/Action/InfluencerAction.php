@@ -16,7 +16,7 @@ final class InfluencerAction implements ActionInterface
     public function execute(array $parameters = []): void
     {
         $currentUserId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
-        $tri = strtoupper((string) ($_GET['tri'] ?? 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
+        $tri = strtoupper((string) ($_GET['tri'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
 
         $influenceurs = $this->repository->influencers($tri);
 

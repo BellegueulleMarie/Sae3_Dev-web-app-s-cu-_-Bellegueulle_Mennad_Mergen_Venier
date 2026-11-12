@@ -162,9 +162,9 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     }
 
     /** @return list<array<string, mixed>> */
-    public function influencers(string $order = 'ASC'): array
+    public function influencers(string $order = 'DESC'): array
     {
-        $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+        $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
         $statement = $this->db->prepare(
             "SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email, u.role,
                     COUNT(s.suiveur_id) AS nb_suiveurs
