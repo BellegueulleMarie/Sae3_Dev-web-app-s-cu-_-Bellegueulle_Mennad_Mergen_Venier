@@ -55,15 +55,20 @@ final class TouiteEvaluateAction implements ActionInterface
             return;
         }
 
-        // Enregistrer le vote positif
-        $this->repository->evaluatePositive((int) $userId, (int) $touiteId);
+        // Récupérer la valeur du vote (+1 ou -1)
+        $valeur = filter_var($_POST['valeur'] ?? 1, FILTER_VALIDATE_INT);
+        $valeur = ($valeur !== false && $valeur < 0) ? -1 : 1;
+
+        // Enregistrer le vote
+        $this->repository->evaluate((int) $userId, (int) $touiteId, $valeur);
 
         // Récupérer le nouveau score
         $score = $this->repository->getScore((int) $touiteId);
 
         echo json_encode([
-            'message' => 'Votre vote a été enregistré.',
+            'message' => $valeur > 0 ? 'Votre vote positif a été enregistré.' : 'Votre vote négatif a été enregistré.',
             'score' => $score,
+            'valeur' => $valeur,
         ]);
     }
 }

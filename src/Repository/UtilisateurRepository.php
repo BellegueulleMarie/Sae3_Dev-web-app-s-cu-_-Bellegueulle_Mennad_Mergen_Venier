@@ -23,11 +23,11 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     public function all(): array
     {
         return $this->db->query(
-            'SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email,
+            'SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email, u.role,
                     COUNT(t.id) AS nb_touites
              FROM utilisateurs u
              LEFT JOIN touites t ON t.auteur_id = u.id
-             GROUP BY u.id, u.nom_utilisateur, u.email
+             GROUP BY u.id, u.nom_utilisateur, u.email, u.role
              ORDER BY u.id'
         )->fetchAll();
     }
@@ -49,8 +49,8 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
     public function find(int $id): ?array
     {
         $statement = $this->db->prepare(
-            'SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email,
-                    u.role, COUNT(t.id) AS nb_touites
+            'SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email, u.role,
+                    COUNT(t.id) AS nb_touites
              FROM utilisateurs u
              LEFT JOIN touites t ON t.auteur_id = u.id
              WHERE u.id = :id
@@ -161,4 +161,20 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         $statement->execute(['id' => $id]);
     }
 
+    /** @return list<array<string, mixed>> */
+    public function influencers(string $order = 'ASC'): array
+    {
+        $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+        $statement = $this->db->prepare(
+            "SELECT u.id AS id_util, u.nom_utilisateur AS nom, u.email, u.role,
+                    COUNT(s.suiveur_id) AS nb_suiveurs
+             FROM utilisateurs u
+             LEFT JOIN suivis s ON s.suivi_id = u.id
+             GROUP BY u.id, u.nom_utilisateur, u.email, u.role
+             ORDER BY nb_suiveurs {$order}, u.nom_utilisateur ASC"
+        );
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
 }

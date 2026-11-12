@@ -11,7 +11,7 @@ $error = htmlspecialchars((string) ($error ?? ''), ENT_QUOTES, 'UTF-8');
 <head>
     <meta charset="utf-8">
     <title>Connexion</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>

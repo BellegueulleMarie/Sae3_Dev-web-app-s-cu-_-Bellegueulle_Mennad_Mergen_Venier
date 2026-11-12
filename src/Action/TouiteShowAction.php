@@ -33,6 +33,10 @@ final class TouiteShowAction implements ActionInterface
         $hasEvaluated = $currentUserId !== false && $currentUserId > 0 && $touite !== null &&
             $this->repository->hasEvaluated((int) $currentUserId, (int) $touite['id_touite']);
 
+        $userEvaluation = $currentUserId !== false && $currentUserId > 0 && $touite !== null
+            ? $this->repository->getUserEvaluation((int) $currentUserId, (int) $touite['id_touite'])
+            : null;
+
         $score = $touite !== null
             ? $this->repository->getScore((int) $touite['id_touite'])
             : 0;
