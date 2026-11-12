@@ -16,6 +16,9 @@ function pageAccueil(string $message, array $touites): void
           '<a class="button" href="index.php?route=tendances">Tendances</a>' .
           '<a class="button" href="index.php?route=tags">Gérer les tags</a>' .
           '<a class="button" href="index.php?route=statistiques">Statistiques</a>' .
+          (!empty($_SESSION['role']) && $_SESSION['role'] === 'admin'
+              ? '<a class="button" href="index.php?route=administration/utilisateurs-suivis">Suiveurs</a>'
+              : '') .
           '<a class="button" href="index.php?route=deconnexion">Se déconnecter</a>'
         : '<a class="button" href="index.php?route=influenceurs">Influenceurs</a>' .
           '<a class="button" href="index.php?route=tendances">Tendances</a>' .

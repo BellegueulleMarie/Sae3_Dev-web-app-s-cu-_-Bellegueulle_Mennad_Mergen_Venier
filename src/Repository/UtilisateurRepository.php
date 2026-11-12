@@ -32,6 +32,19 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         )->fetchAll();
     }
 
+    /** @return list<array<string, mixed>> */
+    public function usersByFollowerCount(): array
+    {
+        return $this->db->query(
+            'SELECT u.id AS id_util, u.nom_utilisateur AS nom,
+                    COUNT(s.suiveur_id) AS nb_suiveurs
+             FROM utilisateurs u
+             LEFT JOIN suivis s ON s.suivi_id = u.id
+             GROUP BY u.id, u.nom_utilisateur
+             ORDER BY nb_suiveurs ASC, u.nom_utilisateur ASC'
+        )->fetchAll();
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {

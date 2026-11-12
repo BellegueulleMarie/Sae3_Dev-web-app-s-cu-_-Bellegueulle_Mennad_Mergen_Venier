@@ -13,6 +13,9 @@ interface UtilisateurRepositoryInterface
     /** @return list<array<string, mixed>> */
     public function all(): array;
 
+    /** @return list<array<string, mixed>> */
+    public function usersByFollowerCount(): array;
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array;
 
