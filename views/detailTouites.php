@@ -30,7 +30,27 @@ function esc(string $value): string
         </h1>
         <p><?= nl2br(esc((string) $touite['texte'])) ?></p>
         <p><small><?= esc((string) $touite['date_touite']) ?></small></p>
-        <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
+        <div class="vote-container">
+            <?php if (($currentUserId ?? false) !== false && ($currentUserId ?? 0) > 0): ?>
+                <form class="vote-form"
+                      method="post"
+                      action="index.php?route=api/touites/<?= (int) $touite['id_touite'] ?>/evaluer">
+
+                    <button type="submit"
+                            class="vote-button <?= !empty($hasEvaluated) ? 'is-liked' : '' ?>"
+                            <?= !empty($hasEvaluated) ? 'disabled' : '' ?>>
+                        <?= !empty($hasEvaluated) ? '♥' : '♡' ?>
+                    </button>
+
+                    <span class="vote-score"><?= (int) $score ?></span>
+                </form>
+            <?php else: ?>
+                <span>♡ <?= (int) $score ?></span>
+                <a href="index.php?route=connexion">Connectez-vous pour voter</a>
+            <?php endif; ?>
+
+            <span class="vote-status" role="status"></span>
+        </div>
         <?php if (($currentUserId ?? false) !== false && ($currentUserId ?? 0) > 0): ?>
             <?php if (!empty($isFollowing)): ?>
                 <form class="follow-form" method="post" action="index.php?route=api/utilisateurs/<?= (int) $touite['id_auteur'] ?>/desabonner">
@@ -72,6 +92,42 @@ document.querySelectorAll('.follow-form').forEach(function (form) {
                 form.action = isUnfollow
                     ? form.action.replace('/desabonner', '/suivre')
                     : form.action.replace('/suivre', '/desabonner');
+                status.textContent = data.message;
+            })
+            .catch(function (error) {
+                button.disabled = false;
+                status.textContent = error.message;
+            });
+    });
+});
+document.querySelectorAll('.vote-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const button = form.querySelector('.vote-button');
+        const score = form.querySelector('.vote-score');
+        const status = document.querySelector('.vote-status');
+
+        button.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Erreur lors du vote.');
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                score.textContent = data.score;
+                button.textContent = '♥';
+                button.classList.add('is-liked', 'like-pop');
                 status.textContent = data.message;
             })
             .catch(function (error) {

@@ -26,6 +26,7 @@ use App\Action\TagPageAction;
 use App\Action\TagSubscribeAction;
 use RuntimeException;
 use Throwable;
+use App\Action\TouiteEvaluateAction;
 
 final class Application
 {
@@ -43,6 +44,7 @@ final class Application
             $database = Connection::create($config['database']);
             $repository = UtilisateurRepository::getInstance($database);
             $touiteRepository = TouiteRepository::getInstance($database);
+            $dispatcher->post('/api/touites/{id}/evaluer', [new TouiteEvaluateAction($touiteRepository), 'execute']);
             $tagRepository = TagRepository::getInstance($database);
             $dispatcher->get('/', [new HomeAction($touiteRepository), 'execute']);
             $dispatcher->get('/touites', [new TouiteListAction($touiteRepository), 'execute']);
@@ -79,6 +81,7 @@ final class Application
             $dispatcher->post('/utilisateurs/creation', $databaseUnavailable);
             $dispatcher->get('/touites', $databaseUnavailable);
             $dispatcher->get('/touites/{id}', $databaseUnavailable);
+            $dispatcher->post('/api/touites/{id}/evaluer', $databaseUnavailable);
             $dispatcher->get('/utilisateurs/{id}/profil', $databaseUnavailable);
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);

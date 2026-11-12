@@ -30,6 +30,13 @@ final class TouiteShowAction implements ActionInterface
             (int) $touite['id_auteur'] !== (int) $currentUserId &&
             $this->userRepository->isFollowing((int) $currentUserId, (int) $touite['id_auteur']);
 
+        $hasEvaluated = $currentUserId !== false && $currentUserId > 0 && $touite !== null &&
+            $this->repository->hasEvaluated((int) $currentUserId, (int) $touite['id_touite']);
+
+        $score = $touite !== null
+            ? $this->repository->getScore((int) $touite['id_touite'])
+            : 0;
+
         require dirname(__DIR__, 2) . '/views/detailTouites.php';
     }
 }

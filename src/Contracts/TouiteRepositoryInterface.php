@@ -26,4 +26,10 @@ interface TouiteRepositoryInterface
 
     /** @return list<array<string, mixed>> */
     public function paginate(int $page, int $perPage = 10, ?int $authorId = null): array;
+
+    public function evaluatePositive(int $userId, int $touiteId): bool;
+
+    public function hasEvaluate(int $userId, int $touiteId): bool;
+
+    public function getScore(int $touiteId): int;
 }
