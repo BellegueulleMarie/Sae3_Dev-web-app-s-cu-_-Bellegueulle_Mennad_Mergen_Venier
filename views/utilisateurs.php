@@ -16,13 +16,14 @@ function utilisateursEchapper(string $value): string
 <head>
     <meta charset="utf-8">
     <title>Utilisateurs</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
     <h1>Les utilisateurs</h1>
     <p>
         <a class="button" href="index.php">Accueil</a>
+        <a class="button" href="index.php?route=influenceurs">Voir les influenceurs</a>
         <a class="button" href="index.php?route=utilisateurs/creation">Créer un utilisateur</a>
     </p>
 

@@ -29,4 +29,6 @@ interface TagRepositoryInterface
 
     public function unsubscribe(int $userId, int $tagId): void;
 
+    /** @return list<array<string, mixed>> */
+    public function trends(string $order = 'DESC'): array;
 }

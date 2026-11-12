@@ -26,6 +26,8 @@ use App\Action\UtilisateurLogoutAction;
 use App\Action\TagPageAction;
 use App\Action\TagSubscribeAction;
 use App\Action\StatisticsAction;
+use App\Action\InfluencerAction;
+use App\Action\TrendAction;
 use RuntimeException;
 use Throwable;
 use App\Action\TouiteEvaluateAction;
@@ -62,6 +64,8 @@ final class Application
             $dispatcher->get('/tags/{id}', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/statistiques', [new StatisticsAction($tagRepository, $touiteRepository, $repository), 'execute']);
             $dispatcher->get('/administration/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
+            $dispatcher->get('/influenceurs', [new InfluencerAction($repository), 'execute']);
+            $dispatcher->get('/tendances', [new TrendAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
@@ -95,6 +99,8 @@ final class Application
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/statistiques', $databaseUnavailable);
             $dispatcher->get('/administration/utilisateurs-suivis', $databaseUnavailable);
+            $dispatcher->get('/influenceurs', $databaseUnavailable);
+            $dispatcher->get('/tendances', $databaseUnavailable);
             $dispatcher->get('/tags/{id}', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);
             $dispatcher->post('/connexion', $databaseUnavailable);

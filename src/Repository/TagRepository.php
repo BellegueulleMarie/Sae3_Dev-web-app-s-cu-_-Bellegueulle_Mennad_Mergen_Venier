@@ -115,4 +115,20 @@ final class TagRepository implements TagRepositoryInterface
         $request->execute(['user_id' => $userId, 'tag_id' => $tagId]);
     }
 
+    /** @return list<array<string, mixed>> */
+    public function trends(string $order = 'DESC'): array
+    {
+        $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+        $request = $this->db->prepare(
+            "SELECT t.id, t.nom, COUNT(tt.touite_id) AS nb_mentions
+             FROM tags t
+             LEFT JOIN touite_tags tt ON tt.tag_id = t.id
+             GROUP BY t.id, t.nom
+             ORDER BY nb_mentions {$order}, t.nom ASC"
+        );
+        $request->execute();
+
+        return $request->fetchAll();
+    }
+
 }

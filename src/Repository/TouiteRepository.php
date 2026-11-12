@@ -26,7 +26,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
-                    COUNT(l.utilisateur_id) AS nombre_likes
+                    COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
@@ -44,7 +44,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur, t.image AS id_img,
                     u.nom_utilisateur AS auteur,
-                    COUNT(l.utilisateur_id) AS nombre_likes
+                    COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
@@ -66,7 +66,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
-                    COUNT(l.utilisateur_id) AS nombre_likes
+                    COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
@@ -103,7 +103,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
-                    COUNT(l.utilisateur_id) AS nombre_likes
+                    COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              LEFT JOIN likes l ON l.touite_id = t.id
@@ -125,7 +125,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                     t.date_publication AS date_touite,
                     t.auteur_id AS id_auteur,
                     u.nom_utilisateur AS auteur,
-                    COUNT(l.utilisateur_id) AS nombre_likes
+                    COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
              FROM touites t
              JOIN utilisateurs u ON u.id = t.auteur_id
              JOIN touite_tags tt ON tt.touite_id = t.id
@@ -236,7 +236,7 @@ final class TouiteRepository implements TouiteRepositoryInterface
                         t.date_publication AS date_touite,
                         t.auteur_id AS id_auteur,
                         u.nom_utilisateur AS auteur,
-                        COUNT(l.utilisateur_id) AS nombre_likes
+                        COALESCE((SELECT SUM(valeur) FROM evaluations WHERE touite_id = t.id), COUNT(DISTINCT l.utilisateur_id), 0) AS nombre_likes
                  FROM touites t
                  JOIN utilisateurs u ON u.id = t.auteur_id
                  LEFT JOIN likes l ON l.touite_id = t.id
@@ -254,6 +254,39 @@ final class TouiteRepository implements TouiteRepositoryInterface
             $request->execute();
 
             return $request->fetchAll();
+        }
+
+        public function evaluate(int $userId, int $touiteId, int $valeur): bool
+        {
+            if ($this->hasEvaluated($userId, $touiteId)) {
+                return false;
+            }
+
+            $valeur = $valeur < 0 ? -1 : 1;
+
+            $request = $this->db->prepare(
+                'INSERT INTO evaluations (utilisateur_id, touite_id, valeur)
+                 VALUES (:user_id, :touite_id, :valeur)'
+            );
+            $request->execute([
+                'user_id' => $userId,
+                'touite_id' => $touiteId,
+                'valeur' => $valeur,
+            ]);
+
+            if ($valeur === 1) {
+                $this->evaluatePositive($userId, $touiteId);
+            } else {
+                $del = $this->db->prepare(
+                    'DELETE FROM likes WHERE utilisateur_id = :user_id AND touite_id = :touite_id'
+                );
+                $del->execute([
+                    'user_id' => $userId,
+                    'touite_id' => $touiteId,
+                ]);
+            }
+
+            return true;
         }
 
         public function evaluatePositive(int $userId, int $touiteId): bool
@@ -275,29 +308,68 @@ final class TouiteRepository implements TouiteRepositoryInterface
         {
             $request = $this->db->prepare(
                 'SELECT COUNT(*)
-                 FROM likes
+                 FROM evaluations
                  WHERE utilisateur_id = :user_id
                  AND touite_id = :touite_id'
             );
-
             $request->execute([
                 'user_id' => $userId,
                 'touite_id' => $touiteId
             ]);
 
-            return (int) $request->fetchColumn() > 0;
+            if ((int) $request->fetchColumn() > 0) {
+                return true;
+            }
+
+            $requestLikes = $this->db->prepare(
+                'SELECT COUNT(*) FROM likes WHERE utilisateur_id = :user_id AND touite_id = :touite_id'
+            );
+            $requestLikes->execute([
+                'user_id' => $userId,
+                'touite_id' => $touiteId
+            ]);
+
+            return (int) $requestLikes->fetchColumn() > 0;
+        }
+
+        public function getUserEvaluation(int $userId, int $touiteId): ?int
+        {
+            $request = $this->db->prepare(
+                'SELECT valeur FROM evaluations WHERE utilisateur_id = :user_id AND touite_id = :touite_id'
+            );
+            $request->execute([
+                'user_id' => $userId,
+                'touite_id' => $touiteId,
+            ]);
+            $val = $request->fetchColumn();
+            if ($val !== false && $val !== null) {
+                return (int) $val;
+            }
+
+            if ($this->hasEvaluated($userId, $touiteId)) {
+                return 1;
+            }
+
+            return null;
         }
 
         public function getScore(int $touiteId): int
         {
             $request = $this->db->prepare(
-                'SELECT COUNT(*)
-                 FROM likes
-                 WHERE touite_id = :touite_id'
+                'SELECT SUM(valeur) FROM evaluations WHERE touite_id = :touite_id'
             );
-
             $request->execute(['touite_id' => $touiteId]);
+            $score = $request->fetchColumn();
 
-            return (int) $request->fetchColumn();
+            if ($score !== false && $score !== null) {
+                return (int) $score;
+            }
+
+            $requestLikes = $this->db->prepare(
+                'SELECT COUNT(*) FROM likes WHERE touite_id = :touite_id'
+            );
+            $requestLikes->execute(['touite_id' => $touiteId]);
+
+            return (int) $requestLikes->fetchColumn();
         }
     }

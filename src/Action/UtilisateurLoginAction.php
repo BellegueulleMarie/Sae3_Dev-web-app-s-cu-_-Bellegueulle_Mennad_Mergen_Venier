@@ -33,7 +33,9 @@ final class UtilisateurLoginAction implements ActionInterface
             } else {
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = (int) $utilisateur['id_util'];
-                $_SESSION['role'] = (string) $utilisateur['role'];
+                $role = (string) ($utilisateur['role'] ?? 'utilisateur');
+                $_SESSION['role'] = $role;
+                $_SESSION['user_role'] = $role;
                 header('Location: index.php?route=utilisateurs/' . (int) $utilisateur['id_util'] . '/profil');
                 exit;
             }

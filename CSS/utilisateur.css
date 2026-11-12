@@ -102,7 +102,7 @@ button:disabled {
     transform: none;
 }
 
-form:not(.follow-form):not(.tag-subscribe-form):not(.inline-tag-form) {
+form:not(.follow-form):not(.tag-subscribe-form):not(.inline-tag-form):not(.vote-form):not(.wall-tag-form) {
     width: min(100%, 520px);
     margin: 20px 0;
     padding: 24px;
@@ -330,6 +330,86 @@ article small {
     margin-top: 6px;
     font-size: 0.9rem;
     color: var(--primary-dark);
+}
+
+/* Styles pour le vote (Like / Dislike) */
+.vote-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.vote-form {
+    display: inline-flex;
+    width: auto !important;
+    align-items: center;
+    gap: 8px;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.vote-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 6px 14px;
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s, border-color 0.2s;
+}
+
+.vote-button:hover:not(:disabled) {
+    background-color: #e8f5fe;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.vote-like.is-liked {
+    background-color: #fde8e8;
+    border-color: #f87171;
+    color: #e02424;
+}
+
+.vote-dislike.is-disliked {
+    background-color: #e1effe;
+    border-color: #76a9fa;
+    color: #1e429f;
+}
+
+.vote-score {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text);
+}
+
+.vote-status {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.button-detail {
+    display: inline-flex;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    background-color: var(--surface);
+    color: var(--primary-dark);
+    border: 1px solid var(--border);
+}
+
+.button-detail:hover {
+    background-color: var(--primary-dark);
+    color: #fff;
 }
 
 @media (max-width: 600px) {
