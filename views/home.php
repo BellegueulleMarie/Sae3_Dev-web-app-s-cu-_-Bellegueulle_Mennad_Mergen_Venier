@@ -18,6 +18,18 @@ function pageAccueil(string $message, array $touites): void
         : '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
           '<a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>';
 
+    $tagFormHtml = $isConnected
+        ? '<section class="stat-box">' .
+          '<h3>S’abonner à un tag</h3>' .
+          '<p>Entrez un tag pour afficher ses touites sur votre mur :</p>' .
+          '<form class="wall-tag-form" method="post" action="index.php?route=api/tags/abonner">' .
+          '<input type="text" name="nom" placeholder="ex: php, web..." required>' .
+          '<button type="submit">S’abonner</button>' .
+          '<span class="wall-tag-status" role="status"></span>' .
+          '</form>' .
+          '</section>'
+        : '';
+
     echo <<<HTML
         <!doctype html>
         <html lang="fr">
@@ -34,6 +46,7 @@ function pageAccueil(string $message, array $touites): void
                     $navigation
                     <a class="button" href="index.php?route=touites/nouveau">Écrire un touite</a>
                 </nav>
+                $tagFormHtml
                 <h2>Mon mur</h2>
 HTML;
 
@@ -64,6 +77,44 @@ HTML;
                         });
                 });
             });
+
+            const wallTagForm = document.querySelector('.wall-tag-form');
+            if (wallTagForm) {
+                wallTagForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const button = wallTagForm.querySelector('button');
+                    const input = wallTagForm.querySelector('input[name="nom"]');
+                    const status = wallTagForm.querySelector('.wall-tag-status');
+                    button.disabled = true;
+                    status.textContent = 'Abonnement...';
+
+                    fetch(wallTagForm.action, {
+                        method: 'POST',
+                        headers: {'Accept': 'application/json'},
+                        body: new FormData(wallTagForm)
+                    })
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok) {
+                                throw new Error(data.error || 'Erreur.');
+                            }
+                            return data;
+                        });
+                    })
+                    .then(function (data) {
+                        status.textContent = data.message;
+                        input.value = '';
+                        button.disabled = false;
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1000);
+                    })
+                    .catch(function (error) {
+                        status.textContent = error.message;
+                        button.disabled = false;
+                    });
+                });
+            }
             </script>
         </body>
         </html>
@@ -123,10 +174,7 @@ function afficherTags(string $texte): string
         '/#([\p{L}\p{N}_-]+)/u',
         static function (array $match): string {
             $nom = $match[1];
-            return '<form class="inline-tag-form" method="post" action="index.php?route=api/tags/abonner">' .
-                '<input type="hidden" name="nom" value="' . echapper($nom) . '">' .
-                '<button type="submit" class="hashtag">#' . echapper($nom) . '</button>' .
-                '</form>';
+            return '<a class="hashtag" href="index.php?route=tags&amp;nom=' . urlencode($nom) . '">#' . echapper($nom) . '</a>';
         },
         $texte
     ) ?? $texte;

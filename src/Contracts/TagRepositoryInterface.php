@@ -17,6 +17,9 @@ interface TagRepositoryInterface
     /** @return array<string, mixed>|null */
     public function findByName(string $name): ?array;
 
+    /** @return array<string, mixed> */
+    public function findOrCreateByName(string $name): array;
+
     /** @return list<array<string, mixed>> */
     public function statistics(): array;
 

@@ -10,6 +10,12 @@ function e(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function lierTags(string $texte): string
+{
+    $texte = e($texte);
+    return preg_replace('/#([\p{L}\p{N}_-]+)/u', '<a class="hashtag" href="index.php?route=tags&amp;nom=$1">#$1</a>', $texte) ?? $texte;
+}
+
 $authorQuery = $authorId === null ? '' : '&amp;author=' . $authorId;
 ?>
 <!doctype html>
@@ -41,7 +47,7 @@ $authorQuery = $authorId === null ? '' : '&amp;author=' . $authorId;
                         <?= e((string) $touite['auteur']) ?>
                     </a>
                 </h2>
-                <p><?= nl2br(e((string) $touite['texte'])) ?></p>
+                <p><?= nl2br(lierTags((string) $touite['texte'])) ?></p>
                 <small><?= e((string) $touite['date_touite']) ?></small>
                 <p><?= (int) $touite['nombre_likes'] ?> like(s)</p>
                 <a href="index.php?route=touites/<?= (int) $touite['id_touite'] ?>">Voir le détail</a>

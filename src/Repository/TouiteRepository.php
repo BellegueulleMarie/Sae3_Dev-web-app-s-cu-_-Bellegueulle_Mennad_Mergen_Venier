@@ -117,6 +117,29 @@ final class TouiteRepository implements TouiteRepositoryInterface
         return $request->fetchAll();
     }
 
+    /** @return list<array<string, mixed>> */
+    public function byTag(int $tagId): array
+    {
+        $request = $this->db->prepare(
+            'SELECT t.id AS id_touite, t.texte,
+                    t.date_publication AS date_touite,
+                    t.auteur_id AS id_auteur, t.image AS id_img,
+                    u.nom_utilisateur AS auteur,
+                    COUNT(l.utilisateur_id) AS nombre_likes
+             FROM touites t
+             JOIN utilisateurs u ON u.id = t.auteur_id
+             JOIN touite_tags tt ON tt.touite_id = t.id
+             LEFT JOIN likes l ON l.touite_id = t.id
+             WHERE tt.tag_id = :tag_id
+             GROUP BY t.id, t.texte, t.date_publication, t.auteur_id,
+                      t.image, u.nom_utilisateur
+             ORDER BY t.date_publication DESC, t.id DESC'
+        );
+        $request->execute(['tag_id' => $tagId]);
+
+        return $request->fetchAll();
+    }
+
     public function create(string $texte, int $auteurId, ?int $idImg = null): int
     {
         $this->db->beginTransaction();

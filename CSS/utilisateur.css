@@ -302,6 +302,36 @@ article small {
     border-radius: 12px;
 }
 
+.wall-tag-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    width: auto !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.wall-tag-form input {
+    width: auto;
+    flex: 1 1 200px;
+    margin-top: 0;
+}
+
+.wall-tag-form button {
+    flex: 0 0 auto;
+}
+
+.wall-tag-status {
+    width: 100%;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+}
+
 @media (max-width: 600px) {
     main {
         width: min(100% - 20px, 900px);

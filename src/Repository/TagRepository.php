@@ -45,6 +45,24 @@ final class TagRepository implements TagRepositoryInterface
         return $tag === false ? null : $tag;
     }
 
+    /** @return array<string, mixed> */
+    public function findOrCreateByName(string $name): array
+    {
+        $nom = ltrim(mb_strtolower(trim($name)), '#');
+        $tag = $this->findByName($nom);
+        if ($tag !== null) {
+            return $tag;
+        }
+
+        $request = $this->db->prepare('INSERT INTO tags (nom) VALUES (:nom)');
+        $request->execute(['nom' => $nom]);
+
+        return [
+            'id' => (int) $this->db->lastInsertId(),
+            'nom' => $nom,
+        ];
+    }
+
     /** @return list<array<string, mixed>> */
     public function statistics(): array
     {
