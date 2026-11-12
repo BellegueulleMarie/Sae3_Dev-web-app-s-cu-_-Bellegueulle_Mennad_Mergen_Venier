@@ -28,6 +28,7 @@ use App\Action\StatisticsAction;
 use RuntimeException;
 use Throwable;
 use App\Action\TouiteEvaluateAction;
+use App\Action\AdminFollowersAction;
 
 final class Application
 {
@@ -57,6 +58,7 @@ final class Application
             $dispatcher->get('/tags', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/tags/{id}', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/statistiques', [new StatisticsAction($tagRepository, $touiteRepository, $repository), 'execute']);
+            $dispatcher->get('/administration/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
             $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
@@ -88,6 +90,7 @@ final class Application
             $dispatcher->get('/utilisateurs/{id}/profil', $databaseUnavailable);
             $dispatcher->get('/utilisateurs', $databaseUnavailable);
             $dispatcher->get('/statistiques', $databaseUnavailable);
+            $dispatcher->get('/administration/utilisateurs-suivis', $databaseUnavailable);
             $dispatcher->get('/tags/{id}', $databaseUnavailable);
             $dispatcher->get('/connexion', $databaseUnavailable);
             $dispatcher->post('/connexion', $databaseUnavailable);
