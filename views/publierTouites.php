@@ -21,7 +21,7 @@ declare(strict_types=1);
         <p role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
 
-    <form method="POST" action="index.php?route=touites/publier">
+    <form method="POST" action="index.php?route=touites/publier" enctype="multipart/form-data">
 
         <label for="texte">Votre touite :</label>
         <textarea
@@ -30,9 +30,17 @@ declare(strict_types=1);
             maxlength="235"
             required
             placeholder="Quoi de neuf ?"
-        ></textarea>
+        ><?= htmlspecialchars($texte ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
         <p>235 caractères maximum.</p>
+        <label for="image">Image (facultative) :</label>
+        <input
+            id="image"
+            name="image"
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+        >
+        <p>JPEG, PNG, GIF ou WebP, 5 Mo maximum.</p>
         <button type="submit">Publier</button>
     </form>
 

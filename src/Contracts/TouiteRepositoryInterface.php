@@ -23,7 +23,7 @@ interface TouiteRepositoryInterface
     /** @return list<array<string, mixed>> */
     public function byTag(int $tagId): array;
 
-    public function create(string $texte, int $auteurId, ?int $idImg = null): int;
+    public function create(string $texte, int $auteurId, ?string $idImg = null): int;
 
     public function count(?int $authorId = null): int;
 

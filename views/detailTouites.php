@@ -73,7 +73,7 @@ function lierTags(string $texte): string
             <a class="button" href="index.php?route=connexion">Se connecter pour suivre</a>
         <?php endif; ?>
         <?php if ((string) ($touite['id_img'] ?? '') !== ''): ?>
-            <img src="<?= esc((string) $touite['id_img']) ?>" alt="Image du touite">
+            <img src="index.php?route=touites/<?= (int) $touite['id_touite'] ?>/image" alt="Image du touite">
         <?php endif; ?>
     <?php endif; ?>
     <p><a class="button" href="index.php?route=touites">Retour aux touites</a></p>
