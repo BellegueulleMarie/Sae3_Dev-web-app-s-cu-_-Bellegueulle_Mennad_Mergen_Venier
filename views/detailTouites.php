@@ -21,7 +21,7 @@ function lierTags(string $texte): string
 <head>
     <meta charset="utf-8">
     <title>Détail du touite</title>
-    <link rel="stylesheet" href="/CSS/utilisateur.css">
+    <link rel="stylesheet" href="CSS/utilisateur.css">
 </head>
 <body>
 <main>
@@ -43,9 +43,21 @@ function lierTags(string $texte): string
                       action="index.php?route=api/touites/<?= (int) $touite['id_touite'] ?>/evaluer">
 
                     <button type="submit"
-                            class="vote-button <?= !empty($hasEvaluated) ? 'is-liked' : '' ?>"
-                            <?= !empty($hasEvaluated) ? 'disabled' : '' ?>>
-                        <?= !empty($hasEvaluated) ? '♥' : '♡' ?>
+                            name="valeur"
+                            value="1"
+                            class="vote-button vote-like <?= (($userEvaluation ?? null) === 1) ? 'is-liked' : '' ?>"
+                            <?= !empty($hasEvaluated) ? 'disabled' : '' ?>
+                            title="J'aime">
+                        ♥ +1
+                    </button>
+
+                    <button type="submit"
+                            name="valeur"
+                            value="-1"
+                            class="vote-button vote-dislike <?= (($userEvaluation ?? null) === -1) ? 'is-disliked' : '' ?>"
+                            <?= !empty($hasEvaluated) ? 'disabled' : '' ?>
+                            title="Je n'aime pas">
+                        💔 -1
                     </button>
 
                     <span class="vote-score"><?= (int) $score ?></span>
@@ -110,17 +122,25 @@ document.querySelectorAll('.vote-form').forEach(function (form) {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const button = form.querySelector('.vote-button');
+        const submitter = event.submitter;
+        const valeur = (submitter && submitter.value) ? submitter.value : '1';
+        const buttons = form.querySelectorAll('.vote-button');
         const score = form.querySelector('.vote-score');
         const status = document.querySelector('.vote-status');
 
-        button.disabled = true;
+        buttons.forEach(function (btn) {
+            btn.disabled = true;
+        });
+
+        const formData = new FormData(form);
+        formData.set('valeur', valeur);
 
         fetch(form.action, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json'
-            }
+            },
+            body: formData
         })
             .then(function (response) {
                 return response.json().then(function (data) {
@@ -132,12 +152,15 @@ document.querySelectorAll('.vote-form').forEach(function (form) {
             })
             .then(function (data) {
                 score.textContent = data.score;
-                button.textContent = '♥';
-                button.classList.add('is-liked', 'like-pop');
+                if (submitter) {
+                    submitter.classList.add(data.valeur > 0 ? 'is-liked' : 'is-disliked');
+                }
                 status.textContent = data.message;
             })
             .catch(function (error) {
-                button.disabled = false;
+                buttons.forEach(function (btn) {
+                    btn.disabled = false;
+                });
                 status.textContent = error.message;
             });
     });
