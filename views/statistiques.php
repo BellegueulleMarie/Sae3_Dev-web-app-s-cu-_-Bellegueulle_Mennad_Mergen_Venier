@@ -29,8 +29,6 @@ function statistiquesEchapper(string $value): string
         <?php if (!empty($_SESSION['user_id'])): ?>
             <a class="button" href="index.php?route=utilisateurs/<?= (int) $_SESSION['user_id'] ?>/profil">Mon profil</a>
         <?php endif; ?>
-        <a class="button" href="index.php?route=influenceurs">Influenceurs</a>
-        <a class="button" href="index.php?route=tendances">Tendances</a>
         <a class="button" href="index.php?route=tags">Tags</a>
     </p>
 

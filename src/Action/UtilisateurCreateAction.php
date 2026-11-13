@@ -56,6 +56,10 @@ class UtilisateurCreateAction implements ActionInterface
             $values['nom']    = trim((string) ($_POST['nom'] ?? ''));
             $values['prenom'] = trim((string) ($_POST['prenom'] ?? ''));
             $values['email']  = trim((string) ($_POST['email'] ?? ''));
+            $password = $_POST['password'] ?? '';
+            $passwordConfirmation = $_POST['password_confirmation'] ?? '';
+            $password = is_string($password) ? $password : '';
+            $passwordConfirmation = is_string($passwordConfirmation) ? $passwordConfirmation : '';
 
             // Validation des champs
             if (
@@ -67,12 +71,17 @@ class UtilisateurCreateAction implements ActionInterface
                 filter_var($values['email'], FILTER_VALIDATE_EMAIL) === false
             ) {
                 $error = 'Veuillez renseigner un nom, un prénom et une adresse e-mail valides.';
+            } elseif (strlen($password) < 8 || strlen($password) > 72) {
+                $error = 'Le mot de passe doit contenir entre 8 et 72 octets.';
+            } elseif ($password !== $passwordConfirmation) {
+                $error = 'Les mots de passe ne correspondent pas.';
             } else {
                 try {
                     $this->repository->create(
                         $values['nom'],
                         $values['prenom'],
-                        $values['email']
+                        $values['email'],
+                        $password
                     );
                     $success = 'Utilisateur créé.';
                     // Réinitialise le formulaire après succès

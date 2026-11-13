@@ -44,6 +44,13 @@ interface UtilisateurRepositoryInterface
     public function find(int $id): ?array;
 
     /**
+     * Authentifie un administrateur avec son adresse e-mail et son mot de passe.
+     *
+     * @return int|null Identifiant de l'administrateur authentifié
+     */
+    public function authenticateAdmin(string $email, string $password): ?int;
+
+    /**
      * Abonne un utilisateur à un autre.
      *
      * @param int $followerId Identifiant de l'abonné
@@ -88,9 +95,10 @@ interface UtilisateurRepositoryInterface
      *
      * @param string $nom    Nom de famille
      * @param string $prenom Prénom
-     * @param string $email  Adresse e-mail (doit être unique)
+     * @param string $email    Adresse e-mail (doit être unique)
+     * @param string $password Mot de passe en clair, haché par le repository
      */
-    public function create(string $nom, string $prenom, string $email): void;
+    public function create(string $nom, string $prenom, string $email, string $password): void;
 
     /**
      * Met à jour les informations d'un utilisateur existant.

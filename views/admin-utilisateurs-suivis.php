@@ -22,7 +22,12 @@ function adminUtilisateursSuivisEchapper(string $value): string
 <body>
 <main>
     <h1>Utilisateurs les plus suivis</h1>
-    <p><a class="button" href="index.php">Accueil</a></p>
+    <nav aria-label="Navigation du back-office">
+        <a class="button" href="admin.php">Administration</a>
+        <a class="button" href="admin.php?route=influenceurs">Influenceurs</a>
+        <a class="button" href="admin.php?route=tendances">Tendances</a>
+        <a class="button" href="admin.php?route=deconnexion">Se déconnecter</a>
+    </nav>
 
     <?php if (!$estAdministrateur): ?>
         <p role="alert">Cette page est réservée aux administrateurs.</p>

@@ -30,7 +30,6 @@ function tagsEchapper(string $value): string
         <p>
             <a class="button" href="index.php">Accueil</a>
             <a class="button" href="index.php?route=tags">Tous les tags</a>
-            <a class="button" href="index.php?route=tendances">Tendances</a>
             <a class="button" href="index.php?route=statistiques">Statistiques</a>
         </p>
 
@@ -100,7 +99,6 @@ function tagsEchapper(string $value): string
         <h1>Tags</h1>
         <p>
             <a class="button" href="index.php">Accueil</a>
-            <a class="button" href="index.php?route=tendances">Voir les tendances</a>
             <a class="button" href="index.php?route=statistiques">Statistiques</a>
         </p>
 
