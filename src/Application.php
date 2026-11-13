@@ -26,12 +26,15 @@ use App\Action\UtilisateurLogoutAction;
 use App\Action\TagPageAction;
 use App\Action\TagSubscribeAction;
 use App\Action\StatisticsAction;
-use App\Action\InfluencerAction;
-use App\Action\TrendAction;
 use RuntimeException;
 use Throwable;
 use App\Action\TouiteEvaluateAction;
 use App\Action\AdminFollowersAction;
+use App\Action\AdminDashboardAction;
+use App\Action\AdminInfluencerAction;
+use App\Action\AdminLoginAction;
+use App\Action\AdminLogoutAction;
+use App\Action\AdminTrendAction;
 
 /**
  * Classe Application
@@ -47,18 +50,38 @@ final class Application
      *
      * @return array{config: array<string, mixed>, dispatcher: Dispatcher}
      */
-    public static function create(): array
+    public static function create(bool $adminPortal = false): array
     {
         $root = dirname(__DIR__);
         self::loadEnvironment($root . '/.env');
 
         $config = require $root . '/config/app.php';
         self::configureErrors((bool) $config['debug']);
-        self::startSession((string) $config['session_name']);
+        self::startSession(
+            (string) ($adminPortal ? $config['admin_session_name'] : $config['session_name']),
+            $adminPortal
+        );
+        if ($adminPortal) {
+            header('Cache-Control: no-store, private');
+            header('X-Content-Type-Options: nosniff');
+        }
         $dispatcher = new Dispatcher($root . '/views');
         if ((string) ($config['database']['dsn'] ?? '') !== '') {
             $database = Connection::create($config['database']);
             $repository = UtilisateurRepository::getInstance($database);
+            if ($adminPortal) {
+                $tagRepository = TagRepository::getInstance($database);
+                $dispatcher->get('/', [new AdminDashboardAction($repository), 'execute']);
+                $dispatcher->get('/connexion', [new AdminLoginAction($repository), 'execute']);
+                $dispatcher->post('/connexion', [new AdminLoginAction($repository), 'execute']);
+                $dispatcher->get('/deconnexion', [new AdminLogoutAction(), 'execute']);
+                $dispatcher->get('/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
+                $dispatcher->get('/influenceurs', [new AdminInfluencerAction($repository), 'execute']);
+                $dispatcher->get('/tendances', [new AdminTrendAction($repository, $tagRepository), 'execute']);
+
+                return ['config' => $config, 'dispatcher' => $dispatcher];
+            }
+
             $touiteRepository = TouiteRepository::getInstance($database);
             $dispatcher->post('/api/touites/{id}/evaluer', [new TouiteEvaluateAction($touiteRepository), 'execute']);
             $tagRepository = TagRepository::getInstance($database);
@@ -74,9 +97,15 @@ final class Application
             $dispatcher->get('/tags', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/tags/{id}', [new TagPageAction($tagRepository, $touiteRepository), 'execute']);
             $dispatcher->get('/statistiques', [new StatisticsAction($tagRepository, $touiteRepository, $repository), 'execute']);
-            $dispatcher->get('/administration/utilisateurs-suivis', [new AdminFollowersAction($repository), 'execute']);
-            $dispatcher->get('/influenceurs', [new InfluencerAction($repository), 'execute']);
-            $dispatcher->get('/tendances', [new TrendAction($tagRepository), 'execute']);
+            $dispatcher->get('/influenceurs', static function (): void {
+                header('Location: admin.php?route=influenceurs');
+            });
+            $dispatcher->get('/tendances', static function (): void {
+                header('Location: admin.php?route=tendances');
+            });
+            $dispatcher->get('/administration/utilisateurs-suivis', static function (): void {
+                header('Location: admin.php?route=utilisateurs-suivis');
+            });
             $dispatcher->post('/api/tags/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/abonner', [new TagSubscribeAction($tagRepository), 'execute']);
             $dispatcher->post('/api/tags/{id}/desabonner', [new TagSubscribeAction($tagRepository), 'execute']);
@@ -92,6 +121,22 @@ final class Application
             $dispatcher->get('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
             $dispatcher->post('/utilisateurs/creation', [new UtilisateurCreateAction($repository), 'execute']);
         } else {
+            if ($adminPortal) {
+                $databaseUnavailable = static function (): void {
+                    http_response_code(503);
+                    echo '<h1>Base de données non configurée.</h1>';
+                };
+                $dispatcher->get('/', $databaseUnavailable);
+                $dispatcher->get('/connexion', $databaseUnavailable);
+                $dispatcher->post('/connexion', $databaseUnavailable);
+                $dispatcher->get('/deconnexion', $databaseUnavailable);
+                $dispatcher->get('/utilisateurs-suivis', $databaseUnavailable);
+                $dispatcher->get('/influenceurs', $databaseUnavailable);
+                $dispatcher->get('/tendances', $databaseUnavailable);
+
+                return ['config' => $config, 'dispatcher' => $dispatcher];
+            }
+
             $dispatcher->get('/', [new HomeAction(), 'execute']);
             $databaseUnavailable = static function (): void {
                 echo '<h1>Base de données non configurée.</h1>';
@@ -176,13 +221,22 @@ final class Application
      * @param string $name Nom de session
      * @throws RuntimeException Si le nom de session est vide
      */
-    private static function startSession(string $name): void
+    private static function startSession(string $name, bool $adminPortal = false): void
     {
         if ($name === '') {
             throw new RuntimeException('Le nom de session ne peut pas être vide.');
         }
 
         session_name($name);
+        if ($adminPortal) {
+            ini_set('session.use_strict_mode', '1');
+            session_set_cookie_params([
+                'httponly' => true,
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'samesite' => 'Strict',
+                'path' => '/',
+            ]);
+        }
         session_start();
     }
 }

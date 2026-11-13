@@ -30,23 +30,12 @@ final class AdminFollowersAction implements ActionInterface
      */
     public function execute(array $parameters = []): void
     {
-        // Récupère l'utilisateur connecté depuis la session
-        $userId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
-        $utilisateur = $userId !== false && $userId > 0
-            ? $this->repository->find((int) $userId)
-            : null;
-
-        // Vérifie le rôle admin
-        $estAdministrateur = $utilisateur !== null && $utilisateur['role'] === 'admin';
-
-        // Charge la liste triée seulement si admin
-        $utilisateurs = $estAdministrateur
-            ? $this->repository->usersByFollowerCount()
-            : [];
-
+        $estAdministrateur = AdminAuthentication::authorize($this->repository);
         if (!$estAdministrateur) {
-            http_response_code(403);
+            return;
         }
+
+        $utilisateurs = $this->repository->usersByFollowerCount();
 
         require dirname(__DIR__, 2) . '/views/admin-utilisateurs-suivis.php';
     }

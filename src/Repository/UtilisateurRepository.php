@@ -93,6 +93,23 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         return $user === false ? null : $user;
     }
 
+    public function authenticateAdmin(string $email, string $password): ?int
+    {
+        $statement = $this->db->prepare(
+            "SELECT id, mot_de_passe
+             FROM utilisateurs
+             WHERE email = :email AND role = 'admin'"
+        );
+        $statement->execute(['email' => $email]);
+        $admin = $statement->fetch();
+
+        if ($admin === false || !password_verify($password, (string) $admin['mot_de_passe'])) {
+            return null;
+        }
+
+        return (int) $admin['id'];
+    }
+
     /**
      * Abonne un utilisateur à un autre (insert dans la table `suivis`).
      *
@@ -195,9 +212,10 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
      *
      * @param string $nom    Nom de famille
      * @param string $prenom Prénom
-     * @param string $email  Adresse e-mail (doit être unique)
+     * @param string $email    Adresse e-mail (doit être unique)
+     * @param string $password Mot de passe en clair
      */
-    public function create(string $nom, string $prenom, string $email): void
+    public function create(string $nom, string $prenom, string $email, string $password): void
     {
         $statement = $this->db->prepare(
             'INSERT INTO utilisateurs (nom_utilisateur, email, mot_de_passe)
@@ -206,7 +224,7 @@ final class UtilisateurRepository implements UtilisateurRepositoryInterface
         $statement->execute([
             'nom_utilisateur' => trim($prenom . ' ' . $nom),
             'email'           => $email,
-            'mot_de_passe'    => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
+            'mot_de_passe'    => password_hash($password, PASSWORD_DEFAULT),
         ]);
     }
 

@@ -48,6 +48,12 @@ function afficherFormulaire(string $nom, string $prenom, string $email): void
             <input id="prenom" name="prenom" maxlength="50" value="$prenom" required></p>
         <p><label for="email">Email</label>
             <input id="email" name="email" type="email" maxlength="100" value="$email" required></p>
+        <p><label for="password">Mot de passe (8 à 72 octets)</label>
+            <input id="password" name="password" type="password" minlength="8" maxlength="72"
+                   autocomplete="new-password" required></p>
+        <p><label for="password_confirmation">Confirmer le mot de passe</label>
+            <input id="password_confirmation" name="password_confirmation" type="password"
+                   minlength="8" maxlength="72" autocomplete="new-password" required></p>
         <button type="submit">Créer</button>
     </form>
 HTML;

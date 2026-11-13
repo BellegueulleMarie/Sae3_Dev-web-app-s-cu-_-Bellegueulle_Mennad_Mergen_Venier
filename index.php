@@ -27,15 +27,20 @@ if (PHP_SAPI === 'cli-server' &&
 $scriptPath = parse_url($_SERVER['SCRIPT_NAME'] ?? '', PHP_URL_PATH) ?: '';
 $basePath = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/.');
 
-// Support du paramètre ?route=... (ex: index.php?route=influenceurs)
-if (isset($_GET['route']) && is_string($_GET['route'])) {
-    $requestPath = '/' . ltrim($_GET['route'], '/');
-}
-
 // Nettoie le préfixe du sous-dossier si présent dans l'URI
 if ($basePath !== '' && $basePath !== '/' &&
     str_starts_with($requestPath, $basePath)) {
     $requestPath = substr($requestPath, strlen($basePath)) ?: '/';
+}
+
+if ($requestPath === '/admin.php') {
+    require __DIR__ . '/admin.php';
+    return;
+}
+
+// Support du paramètre ?route=... (ex: index.php?route=influenceurs)
+if (isset($_GET['route']) && is_string($_GET['route'])) {
+    $requestPath = '/' . ltrim($_GET['route'], '/');
 }
 
 if ($scriptPath !== '' && ltrim(rtrim($requestPath, '/'), '/') === basename($scriptPath)) {

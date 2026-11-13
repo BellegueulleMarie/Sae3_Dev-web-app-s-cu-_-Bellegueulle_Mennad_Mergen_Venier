@@ -92,7 +92,6 @@ function profilEchapper(string $value): string
     <?php endif; ?>
     <p>
         <a class="button" href="index.php?route=touites">Voir les touites</a>
-        <a class="button" href="index.php?route=influenceurs">Influenceurs</a>
         <a class="button" href="index.php?route=statistiques">Statistiques</a>
         <a class="button" href="index.php">Accueil</a>
     </p>

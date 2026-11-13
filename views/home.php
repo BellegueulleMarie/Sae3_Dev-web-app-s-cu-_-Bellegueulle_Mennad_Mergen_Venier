@@ -6,23 +6,21 @@ function pageAccueil(string $message, array $touites): void
 {
     $userId = filter_var($_SESSION['user_id'] ?? null, FILTER_VALIDATE_INT);
     $isConnected = $userId !== false && $userId > 0;
+    $isAdmin = $isConnected && ($_SESSION['role'] ?? null) === 'admin';
     $navigation = $isConnected
         ? '<a class="profile-avatar" href="index.php?route=utilisateurs/' . (int) $userId .
             '/profil" aria-label="Voir mon profil">U</a>' .
           '<a class="button" href="index.php?route=utilisateurs/' . (int) $userId .
             '/profil">Mon profil</a>' .
           '<a class="button" href="index.php?route=utilisateurs">Utilisateurs</a>' .
-          '<a class="button" href="index.php?route=influenceurs">Influenceurs</a>' .
-          '<a class="button" href="index.php?route=tendances">Tendances</a>' .
           '<a class="button" href="index.php?route=tags">Gérer les tags</a>' .
           '<a class="button" href="index.php?route=statistiques">Statistiques</a>' .
-          (!empty($_SESSION['role']) && $_SESSION['role'] === 'admin'
-              ? '<a class="button" href="index.php?route=administration/utilisateurs-suivis">Suiveurs</a>'
+          ($isAdmin
+              ? '<a class="button" href="admin.php">Administration</a>' .
+                '<a class="button" href="admin.php?route=utilisateurs-suivis">Suiveurs</a>'
               : '') .
           '<a class="button" href="index.php?route=deconnexion">Se déconnecter</a>'
-        : '<a class="button" href="index.php?route=influenceurs">Influenceurs</a>' .
-          '<a class="button" href="index.php?route=tendances">Tendances</a>' .
-          '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
+        : '<a class="button" href="index.php?route=utilisateurs">Se connecter</a>' .
           '<a class="button" href="index.php?route=utilisateurs/creation">Créer un compte</a>';
 
     $tagFormHtml = $isConnected

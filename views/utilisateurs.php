@@ -23,7 +23,6 @@ function utilisateursEchapper(string $value): string
     <h1>Les utilisateurs</h1>
     <p>
         <a class="button" href="index.php">Accueil</a>
-        <a class="button" href="index.php?route=influenceurs">Voir les influenceurs</a>
         <a class="button" href="index.php?route=utilisateurs/creation">Créer un utilisateur</a>
     </p>
 
